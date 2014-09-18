@@ -1,22 +1,17 @@
 package cc.aaron67.fetch.leetcode.test;
 
+import org.apache.http.HttpResponse;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 
-import cc.aaron67.fetch.leetcode.utils.Utils;
+import cc.aaron67.fetch.leetcode.utils.HttpUtils;
 
 public class UtilsTest {
-
-	private final static Logger logger = Logger.getLogger(UtilsTest.class);
+	private static Logger logger = Logger.getLogger(UtilsTest.class);
 
 	@Test
-	public void getWebPageTest() {
-		String url = "http://oj.leetcode.com/submissions";
-		try {
-			Utils.getWebPage(url);
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-			e.printStackTrace();
-		}
+	public void testGet() {
+		HttpResponse response = HttpUtils.get("https://oj.leetcode.com/", null);
+		logger.info(response.toString());
 	}
 }

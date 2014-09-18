@@ -1,7 +1,7 @@
 *.class
 .*
 build/
-
+bin/
 
 # Package Files #
 *.jar
@@ -10,4 +10,3 @@ build/
 
 # Mac crap #
 .DS_Store
-/bin/
