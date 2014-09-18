@@ -1,6 +1,13 @@
 *.class
+.*
+build/
+
 
 # Package Files #
 *.jar
 *.war
 *.ear
+
+# Mac crap #
+.DS_Store
+/bin/
