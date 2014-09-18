@@ -14,8 +14,8 @@ import org.apache.log4j.Logger;
 import cc.aaron67.fetch.leetcode.utils.HttpUtils;
 
 public class Leetcode {
-	public final static String USER_NAME = "aaron67@aaron67.cc";
-	public final static String PASSWORD = "hTjADNH%dp0R^NTmI";
+	public final static String USER_NAME = "";
+	public final static String PASSWORD = "";
 	public final static String HOME_PAGE_URL = "https://oj.leetcode.com/";
 	public final static String LOGIN_PAGE_URL = "https://oj.leetcode.com/accounts/login/";
 	public final static String SUBMISSION_PAGE_URL = "https://oj.leetcode.com/submissions/";
