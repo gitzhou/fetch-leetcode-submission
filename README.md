@@ -4,7 +4,7 @@ Gradle 构建项目
 jsoup、HttpClient 抓取、解析网页
 
 ## 说明
-1. 在 `cc.aaron67.fetch.leetcode.page.UserConfig` 类中配置
+* 在 `cc.aaron67.fetch.leetcode.page.UserConfig` 类中配置
 ```
     // LeetCode OJ 账号
 	public final static String USER_NAME = "";
@@ -23,8 +23,8 @@ jsoup、HttpClient 抓取、解析网页
 	public final static Set<String> STATUS = new HashSet<String>(
 			Arrays.asList(new String[] { "Accepted" }));
 ```
-2. 运行 `cc.aaron67.fetch.leetcode.main.Main` 类中的 `main()` 方法抓取代码
-3. 输出的代码文件，内容依次为
+* 运行 `cc.aaron67.fetch.leetcode.main.Main` 类中的 `main()` 方法抓取代码
+* 输出的代码文件，内容依次为
    * `本项目信息`
    * `题目标题`
    * `题目URL`
