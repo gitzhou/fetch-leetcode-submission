@@ -56,8 +56,6 @@ public class HttpUtils {
 		} catch (IOException e) {
 			logger.error(e.getMessage());
 			e.printStackTrace();
-		} finally {
-
 		}
 		return html;
 	}

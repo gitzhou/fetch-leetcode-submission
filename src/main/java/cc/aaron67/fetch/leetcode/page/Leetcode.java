@@ -13,13 +13,13 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import cc.aaron67.fetch.leetcode.model.CodeObj;
 import cc.aaron67.fetch.leetcode.model.QuestionObj;
 import cc.aaron67.fetch.leetcode.model.SubmissionObj;
 import cc.aaron67.fetch.leetcode.utils.HttpUtils;
+import cc.aaron67.fetch.leetcode.utils.Utils;
 
 public class Leetcode {
-	public final static String USER_NAME = "";
+	public final static String USER_NAME = "aaron67@aaron67.cc";
 	public final static String PASSWORD = "";
 	public final static String HOME_PAGE_URL = "https://oj.leetcode.com";
 	public final static String LOGIN_PAGE_URL = "https://oj.leetcode.com/accounts/login/";
@@ -41,15 +41,11 @@ public class Leetcode {
 				for (Element tr : submissions) { // 对每一次的提交
 					Elements tds = tr.select("td");
 					SubmissionObj so = new SubmissionObj();
-					logger.info(">>>> " + tds.get(1).select("a").text());
+					logger.info("抓取 [" + tds.get(0).text() + "] 的提交 >>>> ");
 					// 题目详细信息
 					QuestionObj qo = buildQuestionObj(HOME_PAGE_URL
 							+ tds.get(1).select("a").attr("href"));
 					so.setQuestion(qo);
-					// 代码内容
-					CodeObj co = buildCodeObj(HOME_PAGE_URL
-							+ tds.get(2).select("a").attr("href"));
-					so.setCode(co);
 					// 代码执行状态
 					so.setStatus(tds.get(2).select("a").get(0).select("strong")
 							.text());
@@ -57,6 +53,10 @@ public class Leetcode {
 					so.setRuntime(tds.get(3).text());
 					// 代码语言
 					so.setLanguage(tds.get(4).text());
+					// 代码内容
+					so.setCode(buildCode(HOME_PAGE_URL
+							+ tds.get(2).select("a").attr("href"),
+							so.getLanguage()));
 					// 持久化到硬盘
 					// TODO
 				}
@@ -64,8 +64,8 @@ public class Leetcode {
 				logger.error(e.getMessage());
 				e.printStackTrace();
 			}
-			logger.info("抓取结束");
 		}
+		logger.info("抓取结束");
 	}
 
 	private boolean login() {
@@ -124,12 +124,33 @@ public class Leetcode {
 		qo.setUrl(url);
 		Document doc = Jsoup.parse(fetchPage(url));
 		qo.setTitle(doc.select("div[class=question-title]").select("h3").text());
-		qo.setContent(doc.select("div[class=question-content]").text());
+		String content = doc.select("div[class=question-content]").text();
+		StringBuilder contentBuilder = new StringBuilder();
+		for (int i = 0; i < content.length(); ++i) {
+			if (Character.isUpperCase(content.charAt(i))) {
+				contentBuilder.append("\n");
+			}
+			contentBuilder.append(content.charAt(i));
+		}
+		qo.setContent(contentBuilder.toString());
 		return qo;
 	}
 
-	private CodeObj buildCodeObj(String url) {
-		return null;
+	private String buildCode(String url, String language) {
+		Elements es = Jsoup.parse(fetchPage(url)).getElementsByTag("script");
+		String code = null;
+		for (Element e : es) {
+			int indexFrom = e.toString().indexOf(
+					"scope.code." + language + " = '");
+			if (indexFrom > -1) {
+				int indexTo = e.toString().indexOf("scope.$apply();");
+				code = e.toString().substring(
+						indexFrom
+								+ ("scope.code." + language + " = '").length(),
+						indexTo - 7);
+			}
+		}
+		logger.info("\n" + Utils.decode(code));
+		return Utils.decode(code);
 	}
-
 }

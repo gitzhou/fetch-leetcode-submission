@@ -2,7 +2,7 @@ package cc.aaron67.fetch.leetcode.model;
 
 public class SubmissionObj {
 	private QuestionObj question;
-	private CodeObj code;
+	private String code;
 	private String status;
 	private String runtime;
 	private String language;
@@ -15,11 +15,11 @@ public class SubmissionObj {
 		this.question = question;
 	}
 
-	public CodeObj getCode() {
+	public String getCode() {
 		return code;
 	}
 
-	public void setCode(CodeObj code) {
+	public void setCode(String code) {
 		this.code = code;
 	}
 
