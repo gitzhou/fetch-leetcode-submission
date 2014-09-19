@@ -1,20 +1,26 @@
 package cc.aaron67.fetch.leetcode.model;
 
-import java.util.List;
-
-public class Submission {
-	private Question question;
+public class SubmissionObj {
+	private QuestionObj question;
+	private CodeObj code;
 	private String status;
 	private String runtime;
 	private String language;
-	private List<String> code;
 
-	public Question getQuestion() {
+	public QuestionObj getQuestion() {
 		return question;
 	}
 
-	public void setQuestion(Question question) {
+	public void setQuestion(QuestionObj question) {
 		this.question = question;
+	}
+
+	public CodeObj getCode() {
+		return code;
+	}
+
+	public void setCode(CodeObj code) {
+		this.code = code;
 	}
 
 	public String getStatus() {
@@ -39,13 +45,5 @@ public class Submission {
 
 	public void setLanguage(String language) {
 		this.language = language;
-	}
-
-	public List<String> getCode() {
-		return code;
-	}
-
-	public void setCode(List<String> code) {
-		this.code = code;
 	}
 }

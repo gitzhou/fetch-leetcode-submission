@@ -6,8 +6,8 @@ import cc.aaron67.fetch.leetcode.page.Leetcode;
 
 public class LeetcodeTest {
 	@Test
-	public void testLogin() {
+	public void test() {
 		Leetcode lc = new Leetcode();
-		lc.login();
+		lc.process();
 	}
 }

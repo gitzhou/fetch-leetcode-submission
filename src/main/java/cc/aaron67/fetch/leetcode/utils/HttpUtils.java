@@ -1,5 +1,6 @@
 package cc.aaron67.fetch.leetcode.utils;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.http.NameValuePair;
+import org.apache.http.ParseException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -44,6 +46,22 @@ public class HttpUtils {
 		return visit(post);
 	}
 
+	public static String fetchWebpage(CloseableHttpResponse response) {
+		String html = null;
+		try {
+			html = EntityUtils.toString(response.getEntity());
+		} catch (ParseException e) {
+			logger.error(e.getMessage());
+			e.printStackTrace();
+		} catch (IOException e) {
+			logger.error(e.getMessage());
+			e.printStackTrace();
+		} finally {
+
+		}
+		return html;
+	}
+
 	private static void addHeaders(HttpUriRequest request,
 			Map<String, String> headers) {
 		if (headers == null) {
@@ -74,10 +92,6 @@ public class HttpUtils {
 		CloseableHttpResponse response = null;
 		try {
 			response = client.execute(request);
-			logger.info("=======" + request.getMethod() + "======="
-					+ request.getURI().toASCIIString() + "======="
-					+ response.getStatusLine() + "=======");
-			logger.info(EntityUtils.toString(response.getEntity()));
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {

@@ -1,6 +1,6 @@
 package cc.aaron67.fetch.leetcode.model;
 
-public class Question {
+public class QuestionObj {
 	private String title;
 	private String content;
 	private String url;
