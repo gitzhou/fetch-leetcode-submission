@@ -143,7 +143,8 @@ public class Leetcode {
 		String content = doc.select("div[class=question-content]").text();
 		StringBuilder contentBuilder = new StringBuilder();
 		for (int i = 0; i < content.length(); ++i) {
-			if (Character.isUpperCase(content.charAt(i))) {
+			if (Character.isUpperCase(content.charAt(i)) && i > 0
+					&& content.charAt(i - 1) == ' ') {
 				contentBuilder.append("\n");
 			}
 			contentBuilder.append(content.charAt(i));

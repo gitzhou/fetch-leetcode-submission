@@ -56,6 +56,7 @@ public class SubmissionObj {
 		builder.append(comment).append(question.getUrl()).append("\n");
 		builder.append(comment).append("\n").append("\n");
 		builder.append(code).append("\n").append("\n");
+		builder.append(comment).append("\n");
 		String[] questionLines = question.getContent().split("\n");
 		for (String line : questionLines) {
 			builder.append(comment).append(line).append("\n");
