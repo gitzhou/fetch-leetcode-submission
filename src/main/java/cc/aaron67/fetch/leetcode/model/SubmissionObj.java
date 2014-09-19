@@ -1,12 +1,15 @@
 package cc.aaron67.fetch.leetcode.model;
 
 public class SubmissionObj {
-	private QuestionObj question;
-	private String code;
-	private String status;
-	private String runtime;
-	private String language;
+	private QuestionObj question; // 该提交属于哪题
+	private String code; // 代码
+	private String status; // 代码运行状态
+	private String runtime; // 代码执行时间
+	private String language; // 代码语言
 
+	/**
+	 * 返回代码文件的扩展名
+	 */
 	public String getCodeExtension() {
 		String extension;
 		switch (language) {
@@ -25,6 +28,9 @@ public class SubmissionObj {
 		return extension;
 	}
 
+	/**
+	 * 返回带有额外注释的代码内容
+	 */
 	public String getCodeWithComment() {
 		String comment;
 		switch (language) {

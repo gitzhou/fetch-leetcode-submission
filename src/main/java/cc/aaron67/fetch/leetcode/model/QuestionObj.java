@@ -1,9 +1,9 @@
 package cc.aaron67.fetch.leetcode.model;
 
 public class QuestionObj {
-	private String title;
-	private String content;
-	private String url;
+	private String title; // 标题
+	private String content; // 内容
+	private String url; // URL地址
 
 	public String getTitle() {
 		return title;

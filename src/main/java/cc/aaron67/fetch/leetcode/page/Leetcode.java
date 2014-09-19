@@ -118,6 +118,9 @@ public class Leetcode {
 		}
 	}
 
+	/**
+	 * 抓取地址为url页面的源码
+	 */
 	private String fetchPage(String url) {
 		Map<String, String> headers = new HashMap<String, String>();
 		headers.put("Referer", HOME_PAGE_URL);

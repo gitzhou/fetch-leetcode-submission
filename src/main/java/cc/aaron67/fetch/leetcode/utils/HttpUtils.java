@@ -26,6 +26,13 @@ public class HttpUtils {
 
 	private static CloseableHttpClient client = HttpClients.createDefault();
 
+	/**
+	 * HTTP GET
+	 * 
+	 * @param url
+	 * @param headers
+	 * @return CloseableHttpResponse
+	 */
 	public static CloseableHttpResponse get(String url,
 			Map<String, String> headers) {
 		if (url == null) {
@@ -36,6 +43,14 @@ public class HttpUtils {
 		return visit(get);
 	}
 
+	/**
+	 * HTTP POST
+	 * 
+	 * @param url
+	 * @param headers
+	 * @param params
+	 * @return CloseableHttpResponse
+	 */
 	public static CloseableHttpResponse post(String url,
 			Map<String, String> headers, Map<String, String> params) {
 		if (url == null) {
@@ -46,6 +61,12 @@ public class HttpUtils {
 		return visit(post);
 	}
 
+	/**
+	 * 抓取网页源码
+	 * 
+	 * @param response
+	 * @return String
+	 */
 	public static String fetchWebpage(CloseableHttpResponse response) {
 		String html = null;
 		try {
