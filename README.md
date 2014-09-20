@@ -6,20 +6,20 @@
 * 进入`release`文件夹
 * 修改 `init.properties` 中的配置
 ```
-    # LeetCode OJ 账号
+    #LeetCodeOJ账号
 	username=your_username
 
-	# LeetCode OJ 密码
+	#LeetCodeOJ密码
 	password=your_password
 
-	# 抓取的代码在本地的存储目录（目录最后带上 / ）
+	#抓取的代码在本地的存储目录（目录最后带上/ ）
 	dirpath=/path/to/your/own/directory/
 
 	# 是否抓取所有的提交代码
-	# 为 false 时参考 tags 集合的取值
+	# 为false时参考tags集合的取值
 	isfetchall=false;
 
-	# 当 isfetchall 为 false 时，抓取匹配集合中状态的提交代码
+	# 当isfetchall为false时，抓取匹配集合中状态的提交代码
 	tags=Accepted,Wrong Answer,Time Limit Exceeded
 ```
 * 命令行中运行 `java -jar FetchLeetcodeSubmission.jar` 抓取代码
