@@ -4,7 +4,7 @@
 
 ## 使用说明
 * 进入`release`文件夹
-* 修改 `init.properties` 中的配置
+* 修改`init.properties` 中的配置
 ```
     #登录账号
 	username=your_username
@@ -15,11 +15,11 @@
 	#抓取的代码在本地的存储目录
 	dirpath=/path/to/your/own/directory/
 
-	# 是否抓取所有的提交代码
-	# 为假时参考集合的取值有选择的抓取
+	#是否抓取所有的提交代码
+	#为假时参考集合的取值有选择的抓取
 	isfetchall=false;
 
-	# 抓取与集合中状态匹配的代码
+	#抓取与集合中状态匹配的代码
 	tags=Accepted,Wrong Answer,Time Limit Exceeded
 ```
 * 命令行中运行 `java -jar FetchLeetcodeSubmission.jar` 抓取代码
