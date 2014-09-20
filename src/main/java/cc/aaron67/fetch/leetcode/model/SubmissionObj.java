@@ -6,6 +6,7 @@ public class SubmissionObj {
 	private String status; // 代码运行状态
 	private String runtime; // 代码执行时间
 	private String language; // 代码语言
+	private String serverID; // 提交记录在服务端的ID号
 
 	/**
 	 * 返回代码文件的扩展名
@@ -108,5 +109,13 @@ public class SubmissionObj {
 
 	public void setLanguage(String language) {
 		this.language = language;
+	}
+
+	public String getServerID() {
+		return serverID;
+	}
+
+	public void setServerID(String serverID) {
+		this.serverID = serverID;
 	}
 }

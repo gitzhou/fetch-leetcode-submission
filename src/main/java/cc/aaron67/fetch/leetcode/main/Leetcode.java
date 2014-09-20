@@ -1,11 +1,13 @@
-package cc.aaron67.fetch.leetcode.page;
+package cc.aaron67.fetch.leetcode.main;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
-import java.util.UUID;
+import java.util.Set;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
@@ -18,6 +20,7 @@ import org.jsoup.select.Elements;
 
 import cc.aaron67.fetch.leetcode.model.QuestionObj;
 import cc.aaron67.fetch.leetcode.model.SubmissionObj;
+import cc.aaron67.fetch.leetcode.utils.Config;
 import cc.aaron67.fetch.leetcode.utils.HttpUtils;
 import cc.aaron67.fetch.leetcode.utils.Utils;
 
@@ -29,6 +32,12 @@ public class Leetcode {
 	private static Logger logger = Logger.getLogger(Leetcode.class);
 
 	private String csrftoken = "DLs592YH48QUgXUWpa6aoS5nbgGXhl8z";
+
+	private Set<String> tags = null;
+
+	public Leetcode() {
+		tags = new HashSet<String>(Arrays.asList(Config.get("tags").split(",")));
+	}
 
 	public void process() {
 		logger.info("抓取开始");
@@ -50,8 +59,8 @@ public class Leetcode {
 						// 筛选抓取的记录
 						String status = tds.get(2).select("a").get(0)
 								.select("strong").text();
-						if (!UserConfig.IS_FETCH_ALL
-								&& !UserConfig.STATUS.contains(status)) {
+						if (Config.get("isfetchall").equals("false")
+								&& !tags.contains(status)) {
 							continue;
 						}
 
@@ -72,6 +81,11 @@ public class Leetcode {
 								HOME_PAGE_URL
 										+ tds.get(2).select("a").attr("href"),
 								so.getLanguage()));
+						// 提交记录在服务端ID号
+						String id = tds.get(2).select("a").attr("href");
+						int firstLast = id.length() - 1, secondLast = id
+								.lastIndexOf('/', firstLast - 1);
+						so.setServerID(id.substring(secondLast + 1, firstLast));
 						// 持久化到硬盘
 						writeSubmissionToDisk(so);
 					} // for
@@ -89,8 +103,8 @@ public class Leetcode {
 		headers.put("Referer", HOME_PAGE_URL);
 		headers.put("Cookie", "csrftoken=" + csrftoken);
 		Map<String, String> params = new HashMap<String, String>();
-		params.put("login", UserConfig.USER_NAME);
-		params.put("password", UserConfig.PASSWORD);
+		params.put("login", Config.get("username"));
+		params.put("password", Config.get("password"));
 		params.put("csrfmiddlewaretoken", csrftoken);
 		CloseableHttpResponse response = HttpUtils.post(LOGIN_PAGE_URL,
 				headers, params);
@@ -174,16 +188,17 @@ public class Leetcode {
 	}
 
 	private void writeSubmissionToDisk(SubmissionObj so) {
-		File file = new File(UserConfig.DIR_PATH + so.getQuestion().getTitle());
+		File file = new File(Config.get("dirpath")
+				+ so.getQuestion().getTitle());
 		if (!file.exists() && !file.mkdirs()) {
 			return;
 		}
-		String filePath = UserConfig.DIR_PATH + so.getQuestion().getTitle()
+		String filePath = Config.get("dirpath") + so.getQuestion().getTitle()
 				+ "/" + so.getStatus().replace(' ', '-');
 		if (so.getStatus().equals("Accepted")) {
 			filePath += "-" + so.getRuntime().replace(' ', '-');
 		}
-		filePath += "-" + UUID.randomUUID() + so.getCodeExtension();
+		filePath += "-" + so.getServerID() + so.getCodeExtension();
 		try {
 			FileWriter writer = new FileWriter(filePath);
 			writer.write(so.getCodeWithComment());

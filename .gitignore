@@ -8,5 +8,7 @@ bin/
 *.war
 *.ear
 
+!release/*.jar
+
 # Mac crap #
 .DS_Store
