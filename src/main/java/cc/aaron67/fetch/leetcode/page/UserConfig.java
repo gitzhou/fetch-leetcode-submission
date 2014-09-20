@@ -11,8 +11,8 @@ public class UserConfig {
 	// LeetCode OJ 密码
 	public final static String PASSWORD = "";
 
-	// 本地存储目录
-	public final static String DIR_PATH = "";
+	// 本地存储目录（字符串最后有一个 /）
+	public final static String DIR_PATH = "/path/to/your/own/directory/";
 
 	// 是否抓取所有的提交代码
 	// 为 false 时参考 STATUS 集合的取值
