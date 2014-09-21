@@ -21,7 +21,8 @@ public class Config {
 			properties.load(new BufferedInputStream(new FileInputStream(
 					configFilePath)));
 		} catch (IOException e) {
-			logger.error("读配置文件出错\n" + e.getMessage());
+			logger.error("读配置文件出错" + System.getProperty("line.separator")
+					+ e.getMessage());
 			e.printStackTrace();
 		}
 	}

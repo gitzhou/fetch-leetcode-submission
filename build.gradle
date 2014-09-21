@@ -18,6 +18,10 @@ jar {
     }
 }
 
+tasks.withType(Compile) {
+	options.encoding = "UTF-8"
+}
+
 task release(type: Copy) {
 	from 'build/libs'
 	into 'release'

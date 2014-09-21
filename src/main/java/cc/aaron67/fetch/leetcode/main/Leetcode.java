@@ -1,8 +1,9 @@
 package cc.aaron67.fetch.leetcode.main;
 
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -162,7 +163,7 @@ public class Leetcode {
 		for (int i = 0; i < content.length(); ++i) {
 			if (Character.isUpperCase(content.charAt(i)) && i > 0
 					&& content.charAt(i - 1) == ' ') {
-				contentBuilder.append("\n");
+				contentBuilder.append(System.getProperty("line.separator"));
 			}
 			contentBuilder.append(content.charAt(i));
 		}
@@ -196,13 +197,14 @@ public class Leetcode {
 		String filePath = Config.get("dirpath") + so.getQuestion().getTitle()
 				+ "/" + so.getStatus().replace(' ', '-');
 		if (so.getStatus().equals("Accepted")) {
-			filePath += "-" + so.getRuntime().replace(' ', '-');
+			filePath += "-" + so.getRuntime().replaceAll(" ", "");
 		}
 		filePath += "-" + so.getServerID() + so.getCodeExtension();
 		try {
-			FileWriter writer = new FileWriter(filePath);
-			writer.write(so.getCodeWithComment());
-			writer.close();
+			OutputStreamWriter osw = new OutputStreamWriter(
+					new FileOutputStream(filePath, true), "UTF-8");
+			osw.write(so.getCodeWithComment());
+			osw.close();
 		} catch (IOException e) {
 			logger.info(e.getMessage());
 			e.printStackTrace();
