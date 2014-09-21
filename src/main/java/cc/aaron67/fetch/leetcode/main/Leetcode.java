@@ -28,6 +28,7 @@ import cc.aaron67.fetch.leetcode.utils.Utils;
 public class Leetcode {
 	public final static String HOME_PAGE_URL = "https://oj.leetcode.com";
 	public final static String LOGIN_PAGE_URL = "https://oj.leetcode.com/accounts/login/";
+	public final static String LOGIN_VIA_GITHUB_PAGE_URL = "https://oj.leetcode.com/accounts/github/login/";
 	public final static String SUBMISSION_PAGE_URL = "https://oj.leetcode.com/submissions/";
 
 	private static Logger logger = Logger.getLogger(Leetcode.class);
@@ -131,6 +132,37 @@ public class Leetcode {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	/**
+	 * 通过GitHub登录
+	 * 
+	 * @return
+	 */
+	public boolean loginViaGithub() {
+		Map<String, String> headers = new HashMap<String, String>();
+		headers.put("Referer", HOME_PAGE_URL);
+		CloseableHttpResponse response = HttpUtils.get(
+				LOGIN_VIA_GITHUB_PAGE_URL, headers);
+		try {
+			Header ghSessCookie = response.getLastHeader("Set-Cookie");
+			String ghsess = "";
+			for (HeaderElement element : ghSessCookie.getElements()) {
+				if (element.getName() != null
+						&& element.getName().equals("_gh_sess")) {
+					ghsess = element.getValue();
+				}
+			}
+			logger.info("_gh_sess: " + ghsess);
+			headers.put(
+					"Referer",
+					"https://github.com/login?return_to=%2Flogin%2Foauth%2Fauthorize%3Fclient_id%3D6efe458dfe2230acceea%26redirect_uri%3Dhttps%253A%252F%252Foj.leetcode.com%252Faccounts%252Fgithub%252Flogin%252Fcallback%252F%26response_type%3Dcode%26scope%3D%26state%3DvSX24LEud6B8");
+			headers.put("_gh_sess", ghsess);
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 	/**
