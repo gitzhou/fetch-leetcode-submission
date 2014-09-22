@@ -144,20 +144,29 @@ public class Leetcode {
 		headers.put("Referer", HOME_PAGE_URL);
 		CloseableHttpResponse response = HttpUtils.get(
 				LOGIN_VIA_GITHUB_PAGE_URL, headers);
+		Header[] hs = response.getAllHeaders();
+		for (Header h : hs) {
+			logger.info(h);
+		}
+		Document doc = Jsoup.parse(HttpUtils.fetchWebpage(response));
 		try {
-			Header ghSessCookie = response.getLastHeader("Set-Cookie");
 			String ghsess = "";
+			Header ghSessCookie = response.getLastHeader("Set-Cookie");
 			for (HeaderElement element : ghSessCookie.getElements()) {
 				if (element.getName() != null
 						&& element.getName().equals("_gh_sess")) {
 					ghsess = element.getValue();
 				}
 			}
-			logger.info("_gh_sess: " + ghsess);
-			headers.put(
-					"Referer",
-					"https://github.com/login?return_to=%2Flogin%2Foauth%2Fauthorize%3Fclient_id%3D6efe458dfe2230acceea%26redirect_uri%3Dhttps%253A%252F%252Foj.leetcode.com%252Faccounts%252Fgithub%252Flogin%252Fcallback%252F%26response_type%3Dcode%26scope%3D%26state%3DvSX24LEud6B8");
-			headers.put("_gh_sess", ghsess);
+			logger.info(ghsess);
+			String utf8 = doc.select("input[name=utf8]").val();
+			String authenticityToken = doc.select(
+					"input[name=authenticity_token]").val();
+			String returnTo = doc.select("input[name=return_to]").val();
+			logger.info(utf8);
+			logger.info(authenticityToken);
+			logger.info(returnTo);
+
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			e.printStackTrace();
