@@ -13,6 +13,9 @@ import java.util.Set;
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -140,16 +143,13 @@ public class Leetcode {
 	 * @return
 	 */
 	public boolean loginViaGithub() {
-		Map<String, String> headers = new HashMap<String, String>();
-		headers.put("Referer", HOME_PAGE_URL);
-		CloseableHttpResponse response = HttpUtils.get(
-				LOGIN_VIA_GITHUB_PAGE_URL, headers);
-		Header[] hs = response.getAllHeaders();
-		for (Header h : hs) {
-			logger.info(h);
-		}
-		Document doc = Jsoup.parse(HttpUtils.fetchWebpage(response));
+		CloseableHttpClient client = HttpClients.createDefault();
+		HttpGet get = new HttpGet(LOGIN_VIA_GITHUB_PAGE_URL);
+		get.addHeader("Referer", HOME_PAGE_URL);
+		CloseableHttpResponse response = null;
 		try {
+			response = client.execute(get);
+			Document doc = Jsoup.parse(HttpUtils.fetchWebpage(response));
 			String ghsess = "";
 			Header ghSessCookie = response.getLastHeader("Set-Cookie");
 			for (HeaderElement element : ghSessCookie.getElements()) {
@@ -158,18 +158,69 @@ public class Leetcode {
 					ghsess = element.getValue();
 				}
 			}
-			logger.info(ghsess);
 			String utf8 = doc.select("input[name=utf8]").val();
 			String authenticityToken = doc.select(
 					"input[name=authenticity_token]").val();
 			String returnTo = doc.select("input[name=return_to]").val();
-			logger.info(utf8);
-			logger.info(authenticityToken);
-			logger.info(returnTo);
+
+			Map<String, String> headers = new HashMap<String, String>();
+			headers.put("Cookie", "_gh_sess=" + ghsess + ";logged_in=no");
+			Map<String, String> params = new HashMap<String, String>();
+			params.put("utf8", utf8);
+			params.put("authenticity_token", authenticityToken);
+			params.put("return_to", returnTo);
+			params.put("commit", "Sign in");
+			params.put("login", "dailyzhou@gmail.com");
+			params.put("password", "5uAjFPKsUtXG*Q2WO");
+			response = HttpUtils.post("https://github.com/session", headers,
+					params);
+			StringBuilder cookie = new StringBuilder();
+			String location = null;
+			Header[] hs = response.getAllHeaders();
+			for (Header h : hs) {
+				if (h.getName().equals("Set-Cookie")) {
+					for (HeaderElement element : h.getElements()) {
+						if (element.getName() != null
+								&& (element.getName().equals("_gh_sess")
+										|| element.getName().equals(
+												"dotcom_user")
+										|| element.getName()
+												.equals("logged_in") || element
+										.getName().equals("user_session"))) {
+							logger.info(element.getName());
+							logger.info(element.getValue());
+							cookie.append(element.getName()).append("=")
+									.append(element.getValue()).append(";");
+						}
+					}
+
+				}
+				if (h.getName().equals("Location")) {
+					location = h.getValue();
+				}
+			}
+			headers.put(
+					"Cookie",
+					cookie.toString().substring(0,
+							cookie.toString().length() - 1));
+			logger.info(location);
+			response = HttpUtils.get(location, headers);
+			hs = response.getAllHeaders();
+			for (Header h : hs) {
+				logger.info(h);
+			}
 
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			e.printStackTrace();
+		} finally {
+			try {
+				response.close();
+				// client.close();
+			} catch (IOException e) {
+				logger.error(e.getMessage());
+				e.printStackTrace();
+			}
 		}
 		return false;
 	}
