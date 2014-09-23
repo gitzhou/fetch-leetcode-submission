@@ -33,8 +33,7 @@ public class HttpUtils {
 	 * @param headers
 	 * @return CloseableHttpResponse
 	 */
-	public static CloseableHttpResponse get(String url,
-			Map<String, String> headers) {
+	public static CloseableHttpResponse get(String url, Map<String, String> headers) {
 		if (url == null) {
 			return null;
 		}
@@ -51,8 +50,8 @@ public class HttpUtils {
 	 * @param params
 	 * @return CloseableHttpResponse
 	 */
-	public static CloseableHttpResponse post(String url,
-			Map<String, String> headers, Map<String, String> params) {
+	public static CloseableHttpResponse post(String url, Map<String, String> headers,
+			Map<String, String> params) {
 		if (url == null) {
 			return null;
 		}
@@ -81,8 +80,7 @@ public class HttpUtils {
 		return html;
 	}
 
-	private static void addHeaders(HttpUriRequest request,
-			Map<String, String> headers) {
+	private static void addHeaders(HttpUriRequest request, Map<String, String> headers) {
 		if (headers == null) {
 			return;
 		}
@@ -92,8 +90,7 @@ public class HttpUtils {
 		}
 	}
 
-	private static HttpPost preparePostMethod(String url,
-			Map<String, String> params) {
+	private static HttpPost preparePostMethod(String url, Map<String, String> params) {
 		HttpPost post = new HttpPost(url);
 		if (params != null && params.size() > 0) {
 			List<NameValuePair> pairs = new ArrayList<NameValuePair>();
@@ -101,8 +98,7 @@ public class HttpUtils {
 			for (String key : keys) {
 				pairs.add(new BasicNameValuePair(key, params.get(key)));
 			}
-			post.setEntity(new UrlEncodedFormEntity(pairs, Charset
-					.forName("UTF-8")));
+			post.setEntity(new UrlEncodedFormEntity(pairs, Charset.forName("UTF-8")));
 		}
 		return post;
 	}
@@ -113,8 +109,6 @@ public class HttpUtils {
 			response = client.execute(request);
 		} catch (Exception e) {
 			e.printStackTrace();
-		} finally {
-			request.abort();
 		}
 		return response;
 	}

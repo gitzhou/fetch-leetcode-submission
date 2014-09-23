@@ -13,9 +13,6 @@ import java.util.Set;
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -62,10 +59,8 @@ public class Leetcode {
 						Elements tds = tr.select("td");
 
 						// 筛选抓取的记录
-						String status = tds.get(2).select("a").get(0)
-								.select("strong").text();
-						if (Config.get("isfetchall").equals("false")
-								&& !tags.contains(status)) {
+						String status = tds.get(2).select("a").get(0).select("strong").text();
+						if (Config.get("isfetchall").equals("false") && !tags.contains(status)) {
 							continue;
 						}
 
@@ -82,14 +77,12 @@ public class Leetcode {
 						// 代码语言
 						so.setLanguage(tds.get(4).text());
 						// 代码内容
-						so.setCode(buildCode(
-								HOME_PAGE_URL
-										+ tds.get(2).select("a").attr("href"),
+						so.setCode(buildCode(HOME_PAGE_URL + tds.get(2).select("a").attr("href"),
 								so.getLanguage()));
 						// 提交记录在服务端ID号
 						String id = tds.get(2).select("a").attr("href");
-						int firstLast = id.length() - 1, secondLast = id
-								.lastIndexOf('/', firstLast - 1);
+						int firstLast = id.length() - 1, secondLast = id.lastIndexOf('/',
+								firstLast - 1);
 						so.setServerID(id.substring(secondLast + 1, firstLast));
 						// 持久化到硬盘
 						writeSubmissionToDisk(so);
@@ -111,14 +104,12 @@ public class Leetcode {
 		params.put("login", Config.get("username"));
 		params.put("password", Config.get("password"));
 		params.put("csrfmiddlewaretoken", csrftoken);
-		CloseableHttpResponse response = HttpUtils.post(LOGIN_PAGE_URL,
-				headers, params);
+		CloseableHttpResponse response = HttpUtils.post(LOGIN_PAGE_URL, headers, params);
 		try {
 			if (response.getStatusLine().getStatusCode() == 302) {
 				Header csrfCookie = response.getFirstHeader("Set-Cookie");
 				for (HeaderElement element : csrfCookie.getElements()) {
-					if (element.getName() != null
-							&& element.getName().equals("csrftoken")) {
+					if (element.getName() != null && element.getName().equals("csrftoken")) {
 						csrftoken = element.getValue();
 					}
 				}
@@ -143,55 +134,41 @@ public class Leetcode {
 	 * @return
 	 */
 	public boolean loginViaGithub() {
-		CloseableHttpClient client = HttpClients.createDefault();
-		HttpGet get = new HttpGet(LOGIN_VIA_GITHUB_PAGE_URL);
-		get.addHeader("Referer", HOME_PAGE_URL);
-		CloseableHttpResponse response = null;
+		Map<String, String> headers = new HashMap<String, String>();
+		headers.put("Referer", HOME_PAGE_URL);
+		CloseableHttpResponse response = HttpUtils.get(LOGIN_VIA_GITHUB_PAGE_URL, headers);
 		try {
-			response = client.execute(get);
 			Document doc = Jsoup.parse(HttpUtils.fetchWebpage(response));
 			String ghsess = "";
 			Header ghSessCookie = response.getLastHeader("Set-Cookie");
 			for (HeaderElement element : ghSessCookie.getElements()) {
-				if (element.getName() != null
-						&& element.getName().equals("_gh_sess")) {
+				if (element.getName() != null && element.getName().equals("_gh_sess")) {
 					ghsess = element.getValue();
 				}
 			}
-			String utf8 = doc.select("input[name=utf8]").val();
-			String authenticityToken = doc.select(
-					"input[name=authenticity_token]").val();
-			String returnTo = doc.select("input[name=return_to]").val();
-
-			Map<String, String> headers = new HashMap<String, String>();
+			headers = new HashMap<String, String>();
 			headers.put("Cookie", "_gh_sess=" + ghsess + ";logged_in=no");
 			Map<String, String> params = new HashMap<String, String>();
-			params.put("utf8", utf8);
-			params.put("authenticity_token", authenticityToken);
-			params.put("return_to", returnTo);
+			params.put("utf8", doc.select("input[name=utf8]").val());
+			params.put("authenticity_token", doc.select("input[name=authenticity_token]").val());
+			params.put("return_to", doc.select("input[name=return_to]").val());
 			params.put("commit", "Sign in");
-			params.put("login", "dailyzhou@gmail.com");
-			params.put("password", "5uAjFPKsUtXG*Q2WO");
-			response = HttpUtils.post("https://github.com/session", headers,
-					params);
+			params.put("login", "");
+			params.put("password", "");
+			response = HttpUtils.post("https://github.com/session", headers, params);
 			StringBuilder cookie = new StringBuilder();
 			String location = null;
 			Header[] hs = response.getAllHeaders();
 			for (Header h : hs) {
 				if (h.getName().equals("Set-Cookie")) {
-					for (HeaderElement element : h.getElements()) {
-						if (element.getName() != null
-								&& (element.getName().equals("_gh_sess")
-										|| element.getName().equals(
-												"dotcom_user")
-										|| element.getName()
-												.equals("logged_in") || element
-										.getName().equals("user_session"))) {
-							logger.info(element.getName());
-							logger.info(element.getValue());
-							cookie.append(element.getName()).append("=")
-									.append(element.getValue()).append(";");
-						}
+					HeaderElement element = h.getElements()[0];
+					if (element.getName() != null
+							&& (element.getName().equals("_gh_sess")
+									|| element.getName().equals("dotcom_user")
+									|| element.getName().equals("logged_in") || element.getName()
+									.equals("user_session"))) {
+						cookie.append(element.getName()).append("=").append(element.getValue())
+								.append(";");
 					}
 
 				}
@@ -199,11 +176,7 @@ public class Leetcode {
 					location = h.getValue();
 				}
 			}
-			headers.put(
-					"Cookie",
-					cookie.toString().substring(0,
-							cookie.toString().length() - 1));
-			logger.info(location);
+			headers.put("Cookie", cookie.toString().substring(0, cookie.toString().length() - 1));
 			response = HttpUtils.get(location, headers);
 			hs = response.getAllHeaders();
 			for (Header h : hs) {
@@ -216,7 +189,6 @@ public class Leetcode {
 		} finally {
 			try {
 				response.close();
-				// client.close();
 			} catch (IOException e) {
 				logger.error(e.getMessage());
 				e.printStackTrace();
@@ -253,8 +225,7 @@ public class Leetcode {
 		String content = doc.select("div[class=question-content]").text();
 		StringBuilder contentBuilder = new StringBuilder();
 		for (int i = 0; i < content.length(); ++i) {
-			if (Character.isUpperCase(content.charAt(i)) && i > 0
-					&& content.charAt(i - 1) == ' ') {
+			if (Character.isUpperCase(content.charAt(i)) && i > 0 && content.charAt(i - 1) == ' ') {
 				contentBuilder.append(System.getProperty("line.separator"));
 			}
 			contentBuilder.append(content.charAt(i));
@@ -267,34 +238,30 @@ public class Leetcode {
 		Elements es = Jsoup.parse(fetchPage(url)).getElementsByTag("script");
 		String code = null;
 		for (Element e : es) {
-			int indexFrom = e.toString().indexOf(
-					"scope.code." + language + " = '");
+			int indexFrom = e.toString().indexOf("scope.code." + language + " = '");
 			if (indexFrom > -1) {
 				int indexTo = e.toString().indexOf("scope.$apply();");
 				code = e.toString().substring(
-						indexFrom
-								+ ("scope.code." + language + " = '").length(),
-						indexTo - 7);
+						indexFrom + ("scope.code." + language + " = '").length(), indexTo - 7);
 			}
 		}
 		return Utils.decode(code);
 	}
 
 	private void writeSubmissionToDisk(SubmissionObj so) {
-		File file = new File(Config.get("dirpath")
-				+ so.getQuestion().getTitle());
+		File file = new File(Config.get("dirpath") + so.getQuestion().getTitle());
 		if (!file.exists() && !file.mkdirs()) {
 			return;
 		}
-		String filePath = Config.get("dirpath") + so.getQuestion().getTitle()
-				+ "/" + so.getStatus().replace(' ', '-');
+		String filePath = Config.get("dirpath") + so.getQuestion().getTitle() + "/"
+				+ so.getStatus().replace(' ', '-');
 		if (so.getStatus().equals("Accepted")) {
 			filePath += "-" + so.getRuntime().replaceAll(" ", "");
 		}
 		filePath += "-" + so.getServerID() + so.getCodeExtension();
 		try {
-			OutputStreamWriter osw = new OutputStreamWriter(
-					new FileOutputStream(filePath, true), "UTF-8");
+			OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(filePath, true),
+					"UTF-8");
 			osw.write(so.getCodeWithComment());
 			osw.close();
 		} catch (IOException e) {
