@@ -134,9 +134,11 @@ public class Leetcode {
 	 * @return
 	 */
 	public boolean loginViaGithub() {
+		// **** 登录GitHub ****
+		// 获取GitHub登录页面
 		Map<String, String> headers = new HashMap<String, String>();
-		headers.put("Referer", HOME_PAGE_URL);
-		CloseableHttpResponse response = HttpUtils.get(LOGIN_VIA_GITHUB_PAGE_URL, headers);
+		headers.put("Referer", "https://github.com/");
+		CloseableHttpResponse response = HttpUtils.get("https://github.com/login/", headers);
 		try {
 			Document doc = Jsoup.parse(HttpUtils.fetchWebpage(response));
 			String ghsess = "";
@@ -151,13 +153,12 @@ public class Leetcode {
 			Map<String, String> params = new HashMap<String, String>();
 			params.put("utf8", doc.select("input[name=utf8]").val());
 			params.put("authenticity_token", doc.select("input[name=authenticity_token]").val());
-			params.put("return_to", doc.select("input[name=return_to]").val());
 			params.put("commit", "Sign in");
 			params.put("login", "");
 			params.put("password", "");
+			// post登录GitHub
 			response = HttpUtils.post("https://github.com/session", headers, params);
 			StringBuilder cookie = new StringBuilder();
-			String location = null;
 			Header[] hs = response.getAllHeaders();
 			for (Header h : hs) {
 				if (h.getName().equals("Set-Cookie")) {
@@ -170,19 +171,17 @@ public class Leetcode {
 						cookie.append(element.getName()).append("=").append(element.getValue())
 								.append(";");
 					}
-
-				}
-				if (h.getName().equals("Location")) {
-					location = h.getValue();
 				}
 			}
-			headers.put("Cookie", cookie.toString().substring(0, cookie.toString().length() - 1));
-			response = HttpUtils.get(location, headers);
-			hs = response.getAllHeaders();
-			for (Header h : hs) {
+			headers.put("Referer", HOME_PAGE_URL);
+			// headers.put("Cookie", cookie.toString().substring(0,
+			// cookie.toString().length() - 1));
+			// **** 登录LeetCode ****
+			response = HttpUtils.get(LOGIN_VIA_GITHUB_PAGE_URL, headers);
+			for (Header h : response.getAllHeaders()) {
 				logger.info(h);
 			}
-
+			logger.info(HttpUtils.fetchWebpage(response));
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			e.printStackTrace();
