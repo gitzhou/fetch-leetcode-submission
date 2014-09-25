@@ -43,6 +43,32 @@ public class HttpUtils {
 	}
 
 	/**
+	 * HTTP GET Without Handling HTTP redirects automatically
+	 * 
+	 * @param url
+	 * @param headers
+	 * @return CloseableHttpResponse
+	 */
+	public static CloseableHttpResponse getWithoutAutoRedirect(String url,
+			Map<String, String> headers) {
+		if (url == null) {
+			return null;
+		}
+		HttpGet get = new HttpGet(url);
+		addHeaders(get, headers);
+		CloseableHttpResponse response = null;
+		try {
+			client = HttpClients.custom().disableRedirectHandling().build();
+			response = visit(get);
+			client = HttpClients.createDefault();
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			e.printStackTrace();
+		}
+		return response;
+	}
+
+	/**
 	 * HTTP POST
 	 * 
 	 * @param url

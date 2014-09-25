@@ -8,7 +8,7 @@ public class UnitTest {
 
 	@Test
 	public void github() {
-		new Leetcode().loginViaGithub();
+		System.out.println(new Leetcode().loginViaGithub());
 	}
 
 }
