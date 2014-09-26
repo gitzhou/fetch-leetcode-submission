@@ -34,7 +34,7 @@ public class Leetcode {
 	private static Logger logger = Logger.getLogger(Leetcode.class);
 
 	private String csrftoken = "DLs592YH48QUgXUWpa6aoS5nbgGXhl8z";
-	private String phpsessid = "";
+	private String phpsessid = "i8hgu33c6cquwgxhmle7ic88wvha1ii6";
 
 	private Set<String> tags = null;
 
@@ -48,8 +48,13 @@ public class Leetcode {
 			try {
 				int pageIndex = 1;
 				while (true) {
-					Elements submissions = Jsoup
-							.parse(fetchPage(SUBMISSION_PAGE_URL + pageIndex++)) // 提交页面
+					String location = SUBMISSION_PAGE_URL;
+					if (pageIndex > 1) {
+						location = SUBMISSION_PAGE_URL + pageIndex++ + "/";
+					} else {
+						++pageIndex;
+					}
+					Elements submissions = Jsoup.parse(fetchPage(location)) // 提交页面
 							.select("table[id=result_testcases]") // 提交记录表格
 							.select("tbody") // 去掉表头
 							.select("tr"); // 表格数据的每一行
@@ -159,73 +164,105 @@ public class Leetcode {
 		CloseableHttpResponse response = HttpUtils.get("https://github.com/login/", headers);
 		try {
 			Document doc = Jsoup.parse(HttpUtils.fetchWebpage(response));
-			String ghsess = "";
+			String _gh_sess = "";
 			Header ghSessCookie = response.getLastHeader("Set-Cookie");
 			for (HeaderElement element : ghSessCookie.getElements()) {
 				if (element.getName() != null && element.getName().equals("_gh_sess")) {
-					ghsess = element.getValue();
+					_gh_sess = element.getValue();
 				}
 			}
+			// post登录GitHub
 			headers = new HashMap<String, String>();
-			headers.put("Cookie", "_gh_sess=" + ghsess + ";logged_in=no");
+			headers.put("Cookie", "_gh_sess=" + _gh_sess + ";logged_in=no");
 			Map<String, String> params = new HashMap<String, String>();
 			params.put("utf8", doc.select("input[name=utf8]").val());
 			params.put("authenticity_token", doc.select("input[name=authenticity_token]").val());
 			params.put("commit", "Sign in");
 			params.put("login", Config.get("username"));
 			params.put("password", Config.get("password"));
-			// post登录GitHub
+			String dotcom_user = "";
+			String logged_in = "";
+			String user_session = "";
 			response = HttpUtils.post("https://github.com/session", headers, params);
-			StringBuilder cookie = new StringBuilder();
-			Header[] hs = response.getAllHeaders();
-			for (Header h : hs) {
-				if (h.getName().equals("Set-Cookie")) {
-					HeaderElement element = h.getElements()[0];
-					if (element.getName() != null
-							&& (element.getName().equals("_gh_sess")
-									|| element.getName().equals("dotcom_user")
-									|| element.getName().equals("logged_in") || element.getName()
-									.equals("user_session"))) {
-						cookie.append(element.getName()).append("=").append(element.getValue())
-								.append(";");
+			for (Header h : response.getHeaders("Set-Cookie")) {
+				for (HeaderElement element : h.getElements()) {
+					if (element != null && element.getName().equals("_gh_sess")) {
+						_gh_sess = element.getValue();
+					} else if (element != null && element.getName().equals("dotcom_user")) {
+						dotcom_user = element.getValue();
+					} else if (element != null && element.getName().equals("logged_in")) {
+						logged_in = element.getValue();
+					} else if (element != null && element.getName().equals("user_session")) {
+						user_session = element.getValue();
 					}
 				}
 			}
-			headers.put("Referer", HOME_PAGE_URL);
-			headers.put("Cookie", cookie.toString().substring(0, cookie.length() - 1));
 			// **** 登录LeetCode ****
+			// GET ==> LOGIN_VIA_GITHUB_PAGE_URL
+			headers.put("Referer", HOME_PAGE_URL);
+			headers.put("Cookie", "csrftoken=" + csrftoken + ";PHPSESSID=" + phpsessid);
 			response = HttpUtils.getWithoutAutoRedirect(LOGIN_VIA_GITHUB_PAGE_URL, headers);
 			if (response.getStatusLine().getStatusCode() == 302) {
-				headers.put("Referer", LOGIN_VIA_GITHUB_PAGE_URL);
-				String location = response.getFirstHeader("Location").getValue();
 				for (Header h : response.getHeaders("Set-Cookie")) {
 					for (HeaderElement he : h.getElements()) {
 						if (he != null && he.getName().equals("PHPSESSID")) {
-							headers.put("Cookie",
-									headers.get("Cookie") + ";PHPSESSID=" + he.getValue());
 							phpsessid = he.getValue();
 						}
 					}
 				}
 				// 302 ==> github.com/login/oauth/...
+				headers.put("Referer", LOGIN_VIA_GITHUB_PAGE_URL);
+				String location = response.getFirstHeader("Location").getValue();
+				headers.put("Cookie", "_gh_sess=" + _gh_sess + ";dotcom_user=" + dotcom_user
+						+ ";logged_in=" + logged_in + ";user_session=" + user_session);
 				response = HttpUtils.getWithoutAutoRedirect(location, headers);
 				if (response.getStatusLine().getStatusCode() == 302) {
-					headers.put("Referer", location);
-					location = response.getFirstHeader("Location").getValue();
-					// 302 ==>
-					// oj.leetcode.com/accounts/github/login/callback/...
-					response = HttpUtils.getWithoutAutoRedirect(location, headers);
 					for (Header h : response.getHeaders("Set-Cookie")) {
-						for (HeaderElement he : h.getElements()) {
-							if (he != null && he.getName().equals("csrftoken")) {
-								csrftoken = he.getValue();
-							} else if (he != null && he.getName().equals("PHPSESSID")) {
-								phpsessid = he.getValue();
+						for (HeaderElement element : h.getElements()) {
+							if (element != null && element.getName().equals("_gh_sess")) {
+								_gh_sess = element.getValue();
+							} else if (element != null && element.getName().equals("user_session")) {
+								user_session = element.getValue();
 							}
 						}
 					}
-					logger.info("登录成功");
-					return true;
+					// 302 ==>
+					// oj.leetcode.com/accounts/github/login/callback/...
+					headers.put("Referer", location);
+					headers.put("Cookie", "csrftoken=" + csrftoken + ";PHPSESSID=" + phpsessid);
+					location = response.getFirstHeader("Location").getValue();
+					String messages = "";
+					response = HttpUtils.getWithoutAutoRedirect(location, headers);
+					if (response.getStatusLine().getStatusCode() == 302) {
+						for (Header h : response.getHeaders("Set-Cookie")) {
+							for (HeaderElement he : h.getElements()) {
+								if (he != null && he.getName().equals("csrftoken")) {
+									csrftoken = he.getValue();
+								} else if (he != null && he.getName().equals("PHPSESSID")) {
+									phpsessid = he.getValue();
+								} else if (he != null && he.getName().equals("messages")) {
+									messages = he.getValue();
+								}
+							}
+						}
+						// 302 ==> oj.leetcode.com/problems/
+						headers.put("Cookie", "csrftoken=" + csrftoken + ";PHPSESSID=" + phpsessid
+								+ ";messages=" + messages);
+						headers.put("Referer", location);
+						location = response.getFirstHeader("Location").getValue();
+						response = HttpUtils.getWithoutAutoRedirect(location, headers);
+						if (response.getStatusLine().getStatusCode() == 200) {
+							for (Header h : response.getHeaders("Set-Cookie")) {
+								for (HeaderElement he : h.getElements()) {
+									if (he != null && he.getName().equals("messages")) {
+										messages = he.getValue();
+									}
+								}
+							}
+							logger.info("登录成功");
+							return true;
+						}
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -248,9 +285,9 @@ public class Leetcode {
 	 */
 	private String fetchPage(String url) {
 		Map<String, String> headers = new HashMap<String, String>();
-		headers.put("Referer", HOME_PAGE_URL);
+		headers.put("Referer", SUBMISSION_PAGE_URL);
 		headers.put("Cookie", "csrftoken=" + csrftoken + ";PHPSESSID=" + phpsessid);
-		CloseableHttpResponse response = HttpUtils.get(url, headers);
+		CloseableHttpResponse response = HttpUtils.getWithoutAutoRedirect(url, headers);
 		try {
 			return HttpUtils.fetchWebpage(response);
 		} finally {

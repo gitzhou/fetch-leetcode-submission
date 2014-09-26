@@ -9,12 +9,14 @@ import java.util.Set;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
+import org.apache.http.client.RedirectStrategy;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
@@ -60,7 +62,8 @@ public class HttpUtils {
 		try {
 			client = HttpClients.custom().disableRedirectHandling().build();
 			response = visit(get);
-			client = HttpClients.createDefault();
+			RedirectStrategy rs = DefaultRedirectStrategy.INSTANCE;
+			client = HttpClients.custom().setRedirectStrategy(rs).build();
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			e.printStackTrace();

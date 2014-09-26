@@ -12,6 +12,9 @@
 	#登录密码
 	password=your_password
 
+	#登录类型，值暂时只能为leetcode或github
+	logintype=leetcode
+
 	#抓取的代码在本地的存储目录
 	dirpath=/path/to/your/own/directory/
 
@@ -56,6 +59,10 @@ release.dependsOn 'build', 'copyConfig'
 ## TODO
 * ~~项目打包~~
 * 第三方平台授权登录的用户代码抓取
+  * ~~GitHub登录~~
+  * Facebook登录
+  * Google登录
+  * LinkedIn登录
 * 多线程抓取
 
 ## LICENSE
