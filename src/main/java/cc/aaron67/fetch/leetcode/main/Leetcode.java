@@ -343,7 +343,7 @@ public class Leetcode {
 		}
 		filePath += "-" + so.getServerID() + so.getCodeExtension();
 		try {
-			OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(filePath, true),
+			OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(filePath, false),
 					"UTF-8");
 			osw.write(so.getCodeWithComment());
 			osw.close();
