@@ -58,6 +58,7 @@ release.dependsOn 'build', 'copyConfig'
 
 ## TODO
 * ~~项目打包~~
+* ~~已抓取的记录不再抓取~~
 * 第三方平台授权登录的用户代码抓取
   * ~~GitHub登录~~
   * Facebook登录

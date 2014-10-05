@@ -137,6 +137,7 @@ public class HttpUtils {
 		try {
 			response = client.execute(request);
 		} catch (Exception e) {
+			logger.error(e.getMessage());
 			e.printStackTrace();
 		}
 		return response;

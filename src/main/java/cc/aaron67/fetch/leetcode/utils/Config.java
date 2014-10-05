@@ -15,6 +15,7 @@ public class Config {
 
 	static {
 		try {
+			logger.info("读取配置文件");
 			String configFilePath = System.getProperty("user.dir")
 					+ "/init.properties";
 			PropertyConfigurator.configure(configFilePath);

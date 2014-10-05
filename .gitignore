@@ -9,6 +9,7 @@ bin/
 *.ear
 
 !release/*.jar
+ids.txt
 
 # Mac crap #
 .DS_Store

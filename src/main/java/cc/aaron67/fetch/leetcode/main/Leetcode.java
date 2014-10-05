@@ -1,12 +1,16 @@
 package cc.aaron67.fetch.leetcode.main;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -37,9 +41,12 @@ public class Leetcode {
 	private String phpsessid = "i8hgu33c6cquwgxhmle7ic88wvha1ii6";
 
 	private Set<String> tags = null;
+	// 已抓取到本地的提交记录的ID
+	private Set<String> ids = new HashSet<String>();
 
 	public Leetcode() {
 		tags = new HashSet<String>(Arrays.asList(Config.get("tags").split(",")));
+		loadLocalSubmissionID();
 	}
 
 	public void process() {
@@ -63,12 +70,18 @@ public class Leetcode {
 					}
 					for (Element tr : submissions) { // 对每一次的提交
 						Elements tds = tr.select("td");
-
+						// 提交记录在服务端ID号
+						String id = tds.get(2).select("a").attr("href");
+						int firstLast = id.length() - 1, secondLast = id.lastIndexOf('/',
+								firstLast - 1);
+						id = id.substring(secondLast + 1, firstLast);
 						// 筛选抓取的记录
 						String status = tds.get(2).select("a").get(0).select("strong").text();
-						if (Config.get("isfetchall").equals("false") && !tags.contains(status)) {
+						if (Config.get("isfetchall").equals("false") && !tags.contains(status)
+								|| ids.contains(id)) {
 							continue;
 						}
+						ids.add(id);
 
 						SubmissionObj so = new SubmissionObj();
 						logger.info("抓取 [" + tds.get(0).text() + "] 的提交 >>>> ");
@@ -86,10 +99,7 @@ public class Leetcode {
 						so.setCode(buildCode(HOME_PAGE_URL + tds.get(2).select("a").attr("href"),
 								so.getLanguage()));
 						// 提交记录在服务端ID号
-						String id = tds.get(2).select("a").attr("href");
-						int firstLast = id.length() - 1, secondLast = id.lastIndexOf('/',
-								firstLast - 1);
-						so.setServerID(id.substring(secondLast + 1, firstLast));
+						so.setServerID(id);
 						// 持久化到硬盘
 						writeSubmissionToDisk(so);
 					} // for
@@ -99,6 +109,7 @@ public class Leetcode {
 				e.printStackTrace();
 			}
 		}
+		syncLocalSubmissionID();
 		logger.info("抓取结束");
 	}
 
@@ -155,7 +166,7 @@ public class Leetcode {
 	 * 
 	 * @return
 	 */
-	public boolean loginViaGithub() {
+	private boolean loginViaGithub() {
 		logger.info("通过 GitHub 登录 LeetCode OJ");
 		// **** 登录GitHub ****
 		// 获取GitHub登录页面
@@ -348,7 +359,49 @@ public class Leetcode {
 			osw.write(so.getCodeWithComment());
 			osw.close();
 		} catch (IOException e) {
-			logger.info(e.getMessage());
+			logger.error(e.getMessage());
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * 加载已抓取到本地的提交记录的ID
+	 */
+	private void loadLocalSubmissionID() {
+		try {
+			logger.info("加载已抓取到本地的提交记录的ID");
+			File file = new File(System.getProperty("user.dir") + "/ids.txt");
+			if (!file.exists()) {
+				return;
+			}
+			InputStreamReader reader = new InputStreamReader(new FileInputStream(file));
+			BufferedReader br = new BufferedReader(reader);
+			String line = null;
+			while ((line = br.readLine()) != null) {
+				ids.add(line);
+			}
+			br.close();
+		} catch (Exception e) {
+			logger.error("读文件出错" + System.getProperty("line.separator") + e.getMessage());
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * 本次抓取结束后，同步更新本地的提交记录的ID
+	 */
+	private void syncLocalSubmissionID() {
+		try {
+			logger.info("同步更新本地的提交记录的ID");
+			OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(
+					System.getProperty("user.dir") + "/ids.txt", false), "UTF-8");
+			Iterator<String> iter = ids.iterator();
+			while (iter.hasNext()) {
+				osw.write(iter.next() + System.getProperty("line.separator"));
+			}
+			osw.close();
+		} catch (Exception e) {
+			logger.error("写文件出错" + System.getProperty("line.separator") + e.getMessage());
 			e.printStackTrace();
 		}
 	}
