@@ -10,6 +10,7 @@ bin/
 
 !release/*.jar
 ids.txt
+statistics.txt
 
 # Mac crap #
 .DS_Store

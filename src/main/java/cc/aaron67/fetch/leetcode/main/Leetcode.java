@@ -7,7 +7,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -44,6 +49,11 @@ public class Leetcode {
 	// 已抓取到本地的提交记录的ID
 	private Set<String> ids = new HashSet<String>();
 
+	// 统计数据
+	private Set<String> passedProblems = new HashSet<String>();
+	private int totalSubmissions = 0;
+	private int totalAccepted = 0;
+
 	public Leetcode() {
 		tags = new HashSet<String>(Arrays.asList(Config.get("tags").split(",")));
 		loadLocalSubmissionID();
@@ -70,13 +80,19 @@ public class Leetcode {
 					}
 					for (Element tr : submissions) { // 对每一次的提交
 						Elements tds = tr.select("td");
+						++totalSubmissions;
 						// 提交记录在服务端ID号
 						String id = tds.get(2).select("a").attr("href");
 						int firstLast = id.length() - 1, secondLast = id.lastIndexOf('/',
 								firstLast - 1);
 						id = id.substring(secondLast + 1, firstLast);
-						// 筛选抓取的记录
+						// 本次提交状态
 						String status = tds.get(2).select("a").get(0).select("strong").text();
+						if (status.equals("Accepted")) {
+							passedProblems.add(tds.get(1).select("a").text());
+							++totalAccepted;
+						}
+						// 筛选抓取的记录
 						if (Config.get("isfetchall").equals("false") && !tags.contains(status)
 								|| ids.contains(id)) {
 							logger.info("跳过 [" + tds.get(0).text() + "] 的提交 >>>> ");
@@ -112,6 +128,7 @@ public class Leetcode {
 		}
 		syncLocalSubmissionID();
 		logger.info("抓取结束");
+		handleStatistics();
 	}
 
 	private boolean login() {
@@ -400,6 +417,45 @@ public class Leetcode {
 			while (iter.hasNext()) {
 				osw.write(iter.next() + System.getProperty("line.separator"));
 			}
+			osw.close();
+		} catch (Exception e) {
+			logger.error("写文件出错" + System.getProperty("line.separator") + e.getMessage());
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * 打印统计信息到屏幕并写硬盘
+	 */
+	private void handleStatistics() {
+		DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String now = format.format(new Date());
+		// 打印屏幕
+		logger.info("============= Statistics ==============");
+		logger.info(String.format("%22s", "Total Submissions:  ") + totalSubmissions);
+		logger.info(String.format("%22s", "Solved Problems:  ") + passedProblems.size());
+		logger.info(String.format("%22s", "Total Accepted:  ") + totalAccepted);
+		logger.info(String.format("%22s", "AC Rates:  ")
+				+ new BigDecimal((totalAccepted * 1.0 / totalSubmissions) * 100).setScale(2,
+						RoundingMode.HALF_UP) + "%");
+		logger.info("========= " + now + " =========");
+		// 写文件
+		try {
+			logger.info("更新本地的统计信息");
+			OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(
+					System.getProperty("user.dir") + "/statistics.txt", false), "UTF-8");
+			osw.write("============= Statistics =============="
+					+ System.getProperty("line.separator"));
+			osw.write(String.format("%22s", "Total Submissions:  ") + totalSubmissions
+					+ System.getProperty("line.separator"));
+			osw.write(String.format("%22s", "Solved Problems:  ") + passedProblems.size()
+					+ System.getProperty("line.separator"));
+			osw.write(String.format("%22s", "Total Accepted:  ") + totalAccepted
+					+ System.getProperty("line.separator"));
+			osw.write(String.format("%22s", "AC Rates:  ")
+					+ new BigDecimal((totalAccepted * 1.0 / totalSubmissions) * 100).setScale(2,
+							RoundingMode.HALF_UP) + "%" + System.getProperty("line.separator"));
+			osw.write("========= " + now + " =========" + System.getProperty("line.separator"));
 			osw.close();
 		} catch (Exception e) {
 			logger.error("写文件出错" + System.getProperty("line.separator") + e.getMessage());
