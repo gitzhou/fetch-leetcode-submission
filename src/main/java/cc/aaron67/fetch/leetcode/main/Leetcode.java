@@ -79,6 +79,7 @@ public class Leetcode {
 						String status = tds.get(2).select("a").get(0).select("strong").text();
 						if (Config.get("isfetchall").equals("false") && !tags.contains(status)
 								|| ids.contains(id)) {
+							logger.info("跳过 [" + tds.get(0).text() + "] 的提交 >>>> ");
 							continue;
 						}
 						ids.add(id);
