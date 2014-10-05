@@ -11,7 +11,8 @@ public class Utils {
 	 *            String 待解码的字符串
 	 * @return 解码后的字符串
 	 * 
-	 * @see http://netwjx.github.io/blog/2012/07/07/encode-and-decode-unicode-escape
+	 * @see http
+	 *      ://netwjx.github.io/blog/2012/07/07/encode-and-decode-unicode-escape
 	 *      -string/
 	 */
 	public static String decode(String s) {
@@ -19,8 +20,11 @@ public class Utils {
 		Matcher m = reUnicode.matcher(s);
 		StringBuffer sb = new StringBuffer(s.length());
 		while (m.find()) {
-			m.appendReplacement(sb,
-					Character.toString((char) Integer.parseInt(m.group(1), 16)));
+			String replace = Character.toString((char) Integer.parseInt(m.group(1), 16));
+			if (replace.equals("\\")) {
+				replace = "\\\\";
+			}
+			m.appendReplacement(sb, replace);
 		}
 		m.appendTail(sb);
 		return sb.toString();
