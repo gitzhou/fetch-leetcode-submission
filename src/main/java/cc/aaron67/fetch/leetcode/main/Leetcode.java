@@ -443,7 +443,7 @@ public class Leetcode {
 		try {
 			logger.info("更新本地的统计信息");
 			OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(
-					Config.get("dirpath") + "/statistics.txt", false), "UTF-8");
+					Config.get("dirpath") + "statistics.txt", false), "UTF-8");
 			osw.write("============= Statistics =============="
 					+ System.getProperty("line.separator"));
 			osw.write(String.format("%22s", "Total Submissions:  ") + totalSubmissions
