@@ -20,7 +20,7 @@
 
 	#是否抓取所有的提交代码
 	#为假时参考集合的取值有选择的抓取
-	isfetchall=false;
+	isfetchall=false
 
 	#抓取与集合中状态匹配的代码
 	tags=Accepted,Wrong Answer,Time Limit Exceeded
