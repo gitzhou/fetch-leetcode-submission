@@ -9,10 +9,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -428,8 +425,6 @@ public class Leetcode {
 	 * 打印统计信息到屏幕并写硬盘
 	 */
 	private void handleStatistics() {
-		DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		String now = format.format(new Date());
 		// 打印屏幕
 		logger.info("============= Statistics ==============");
 		logger.info(String.format("%22s", "Total Submissions:  ") + totalSubmissions);
@@ -438,7 +433,7 @@ public class Leetcode {
 		logger.info(String.format("%22s", "AC Rates:  ")
 				+ new BigDecimal((totalAccepted * 1.0 / totalSubmissions) * 100).setScale(2,
 						RoundingMode.HALF_UP) + "%");
-		logger.info("========= " + now + " =========");
+		logger.info("=======================================");
 		// 写文件
 		try {
 			logger.info("更新本地的统计信息");
@@ -455,7 +450,8 @@ public class Leetcode {
 			osw.write(String.format("%22s", "AC Rates:  ")
 					+ new BigDecimal((totalAccepted * 1.0 / totalSubmissions) * 100).setScale(2,
 							RoundingMode.HALF_UP) + "%" + System.getProperty("line.separator"));
-			osw.write("========= " + now + " =========" + System.getProperty("line.separator"));
+			osw.write("======================================="
+					+ System.getProperty("line.separator"));
 			osw.close();
 		} catch (Exception e) {
 			logger.error("写文件出错" + System.getProperty("line.separator") + e.getMessage());
