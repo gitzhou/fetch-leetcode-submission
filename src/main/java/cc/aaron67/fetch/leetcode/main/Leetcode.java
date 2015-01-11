@@ -252,8 +252,7 @@ public class Leetcode {
 							}
 						}
 					}
-					// 302 ==>
-					// oj.leetcode.com/accounts/github/login/callback/...
+					// 302 ==> oj.leetcode.com/accounts/github/login/callback/..
 					headers.put("Referer", location);
 					headers.put("Cookie", "csrftoken=" + csrftoken + ";PHPSESSID=" + phpsessid);
 					location = response.getFirstHeader("Location").getValue();
@@ -271,13 +270,13 @@ public class Leetcode {
 								}
 							}
 						}
-						// 302 ==> oj.leetcode.com/problems/
+						// 302 ==> oj.leetcode.com/problemset/
 						headers.put("Cookie", "csrftoken=" + csrftoken + ";PHPSESSID=" + phpsessid
 								+ ";messages=" + messages);
 						headers.put("Referer", location);
 						location = response.getFirstHeader("Location").getValue();
 						response = HttpUtils.getWithoutAutoRedirect(location, headers);
-						if (response.getStatusLine().getStatusCode() == 200) {
+						if (response.getStatusLine().getStatusCode() == 302) {
 							for (Header h : response.getHeaders("Set-Cookie")) {
 								for (HeaderElement he : h.getElements()) {
 									if (he != null && he.getName().equals("messages")) {
@@ -285,8 +284,23 @@ public class Leetcode {
 									}
 								}
 							}
-							logger.info("登录成功");
-							return true;
+							// 302 ==> oj.leetcode.com/problemset/algorithms/
+							headers.put("Cookie", "csrftoken=" + csrftoken + ";PHPSESSID="
+									+ phpsessid + ";messages=" + messages);
+							headers.put("Referer", location);
+							location = response.getFirstHeader("Location").getValue();
+							response = HttpUtils.getWithoutAutoRedirect(location, headers);
+							if (response.getStatusLine().getStatusCode() == 200) {
+								for (Header h : response.getHeaders("Set-Cookie")) {
+									for (HeaderElement he : h.getElements()) {
+										if (he != null && he.getName().equals("messages")) {
+											messages = he.getValue();
+										}
+									}
+								}
+								logger.info("登录成功");
+								return true;
+							}
 						}
 					}
 				}
@@ -425,17 +439,20 @@ public class Leetcode {
 	 * 打印统计信息到屏幕并写硬盘
 	 */
 	private void handleStatistics() {
-		// 打印屏幕
-		logger.info("============= Statistics ==============");
-		logger.info(String.format("%22s", "Total Submissions:  ") + totalSubmissions);
-		logger.info(String.format("%22s", "Solved Problems:  ") + passedProblems.size());
-		logger.info(String.format("%22s", "Total Accepted:  ") + totalAccepted);
-		logger.info(String.format("%22s", "AC Rates:  ")
-				+ new BigDecimal((totalAccepted * 1.0 / totalSubmissions) * 100).setScale(2,
-						RoundingMode.HALF_UP) + "%");
-		logger.info("=======================================");
-		// 写文件
 		try {
+			// 打印屏幕
+			logger.info("============= Statistics ==============");
+			logger.info(String.format("%22s", "Total Submissions:  ") + totalSubmissions);
+			logger.info(String.format("%22s", "Solved Problems:  ") + passedProblems.size());
+			logger.info(String.format("%22s", "Total Accepted:  ") + totalAccepted);
+			if (totalSubmissions != 0) {
+				logger.info(String.format("%22s", "AC Rates:  ")
+						+ new BigDecimal((totalAccepted * 1.0 / totalSubmissions) * 100).setScale(
+								2, RoundingMode.HALF_UP) + "%");
+			}
+			logger.info("=======================================");
+
+			// 写文件
 			logger.info("更新本地的统计信息");
 			OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(
 					Config.get("dirpath") + "statistics.txt", false), "UTF-8");
@@ -447,9 +464,12 @@ public class Leetcode {
 					+ System.getProperty("line.separator"));
 			osw.write(String.format("%22s", "Total Accepted:  ") + totalAccepted
 					+ System.getProperty("line.separator"));
-			osw.write(String.format("%22s", "AC Rates:  ")
-					+ new BigDecimal((totalAccepted * 1.0 / totalSubmissions) * 100).setScale(2,
-							RoundingMode.HALF_UP) + "%" + System.getProperty("line.separator"));
+			if (totalSubmissions != 0) {
+				osw.write(String.format("%22s", "AC Rates:  ")
+						+ new BigDecimal((totalAccepted * 1.0 / totalSubmissions) * 100).setScale(
+								2, RoundingMode.HALF_UP) + "%"
+						+ System.getProperty("line.separator"));
+			}
 			osw.write("======================================="
 					+ System.getProperty("line.separator"));
 			osw.close();
