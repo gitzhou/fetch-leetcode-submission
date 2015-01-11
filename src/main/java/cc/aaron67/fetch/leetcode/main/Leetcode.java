@@ -345,15 +345,7 @@ public class Leetcode {
 		qo.setUrl(url);
 		Document doc = Jsoup.parse(fetchPage(url));
 		qo.setTitle(doc.select("div[class=question-title]").select("h3").text());
-		String content = doc.select("div[class=question-content]").text();
-		StringBuilder contentBuilder = new StringBuilder();
-		for (int i = 0; i < content.length(); ++i) {
-			if (Character.isUpperCase(content.charAt(i)) && i > 0 && content.charAt(i - 1) == ' ') {
-				contentBuilder.append(System.getProperty("line.separator"));
-			}
-			contentBuilder.append(content.charAt(i));
-		}
-		qo.setContent(contentBuilder.toString());
+		qo.setContent(doc.select("div[class=question-content]").text());
 		return qo;
 	}
 

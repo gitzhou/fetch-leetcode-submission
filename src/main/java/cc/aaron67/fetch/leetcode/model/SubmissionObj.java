@@ -69,7 +69,7 @@ public class SubmissionObj {
 		builder.append(comment).append(lineSeparator).append(lineSeparator);
 		builder.append(code).append(lineSeparator).append(lineSeparator);
 		builder.append(comment).append(lineSeparator);
-		String[] questionLines = question.getContent().split(lineSeparator);
+		String[] questionLines = question.getContent().split("\r\n");
 		for (String line : questionLines) {
 			builder.append(comment).append(line).append(lineSeparator);
 		}
