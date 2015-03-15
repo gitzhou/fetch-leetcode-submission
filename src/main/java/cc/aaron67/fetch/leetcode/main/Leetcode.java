@@ -32,10 +32,10 @@ import cc.aaron67.fetch.leetcode.utils.HttpUtils;
 import cc.aaron67.fetch.leetcode.utils.Utils;
 
 public class Leetcode {
-	public final static String HOME_PAGE_URL = "https://oj.leetcode.com";
-	public final static String LOGIN_PAGE_URL = "https://oj.leetcode.com/accounts/login/";
-	public final static String LOGIN_VIA_GITHUB_PAGE_URL = "https://oj.leetcode.com/accounts/github/login/";
-	public final static String SUBMISSION_PAGE_URL = "https://oj.leetcode.com/submissions/";
+	public final static String HOME_PAGE_URL = "https://leetcode.com";
+	public final static String LOGIN_PAGE_URL = "https://leetcode.com/accounts/login/";
+	public final static String LOGIN_VIA_GITHUB_PAGE_URL = "https://leetcode.com/accounts/github/login/";
+	public final static String SUBMISSION_PAGE_URL = "https://leetcode.com/submissions/";
 
 	private static Logger logger = Logger.getLogger(Leetcode.class);
 
@@ -108,7 +108,7 @@ public class Leetcode {
 						// 代码执行时间
 						so.setRuntime(tds.get(3).text());
 						// 代码语言
-						so.setLanguage(tds.get(4).text());
+						so.setLanguage(tds.get(4).text().toLowerCase());
 						// 代码内容
 						so.setCode(buildCode(HOME_PAGE_URL + tds.get(2).select("a").attr("href"),
 								so.getLanguage()));
@@ -252,7 +252,7 @@ public class Leetcode {
 							}
 						}
 					}
-					// 302 ==> oj.leetcode.com/accounts/github/login/callback/..
+					// 302 ==> leetcode.com/accounts/github/login/callback/..
 					headers.put("Referer", location);
 					headers.put("Cookie", "csrftoken=" + csrftoken + ";PHPSESSID=" + phpsessid);
 					location = response.getFirstHeader("Location").getValue();
@@ -270,7 +270,7 @@ public class Leetcode {
 								}
 							}
 						}
-						// 302 ==> oj.leetcode.com/problemset/
+						// 302 ==> leetcode.com/problemset/
 						headers.put("Cookie", "csrftoken=" + csrftoken + ";PHPSESSID=" + phpsessid
 								+ ";messages=" + messages);
 						headers.put("Referer", location);
@@ -284,7 +284,7 @@ public class Leetcode {
 									}
 								}
 							}
-							// 302 ==> oj.leetcode.com/problemset/algorithms/
+							// 302 ==> leetcode.com/problemset/algorithms/
 							headers.put("Cookie", "csrftoken=" + csrftoken + ";PHPSESSID="
 									+ phpsessid + ";messages=" + messages);
 							headers.put("Referer", location);

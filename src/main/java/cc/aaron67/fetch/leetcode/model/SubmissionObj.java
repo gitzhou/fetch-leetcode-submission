@@ -23,6 +23,18 @@ public class SubmissionObj {
 		case "python":
 			extension = ".py";
 			break;
+		case "c":
+			extension = ".c";
+			break;
+		case "csharp":
+			extension = ".cs";
+			break;
+		case "javascript":
+			extension = ".js";
+			break;
+		case "ruby":
+			extension = ".rb";
+			break;
 		case "mysql":
 			extension = ".sql";
 			break;
@@ -45,6 +57,18 @@ public class SubmissionObj {
 			comment = "// ";
 			break;
 		case "python":
+			comment = "# ";
+			break;
+		case "c":
+			comment = "// ";
+			break;
+		case "csharp":
+			comment = "// ";
+			break;
+		case "javascript":
+			comment = "// ";
+			break;
+		case "ruby":
 			comment = "# ";
 			break;
 		case "mysql":
