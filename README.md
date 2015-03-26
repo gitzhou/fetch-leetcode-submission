@@ -56,16 +56,5 @@ task copyConfig(type: Copy) {
 release.dependsOn 'build', 'copyConfig'
 ```
 
-## TODO
-* ~~项目打包~~
-* ~~已抓取的记录不再抓取~~
-* ~~提交记录的统计信息~~
-* 第三方平台授权登录的用户代码抓取
-  * ~~GitHub登录~~
-  * Facebook登录
-  * Google登录
-  * LinkedIn登录
-* 多线程抓取
-
 ## LICENSE
 项目基于[GPL协议](http://www.gnu.org/licenses/gpl.html)发布
