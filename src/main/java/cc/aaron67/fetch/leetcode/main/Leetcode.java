@@ -353,11 +353,11 @@ public class Leetcode {
 		Elements es = Jsoup.parse(fetchPage(url)).getElementsByTag("script");
 		String code = null;
 		for (Element e : es) {
-			int indexFrom = e.toString().indexOf("scope.code." + language + " = '");
+			int indexFrom = e.toString().indexOf("storage.put('" + language + "', '");
 			if (indexFrom > -1) {
-				int indexTo = e.toString().indexOf("scope.$apply();");
+				int indexTo = e.toString().indexOf("storage.put('lang',");
 				code = e.toString().substring(
-						indexFrom + ("scope.code." + language + " = '").length(), indexTo - 7);
+						indexFrom + ("storage.put('" + language + "', '").length(), indexTo - 8);
 			}
 		}
 		return Utils.decode(code);
