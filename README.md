@@ -6,25 +6,25 @@
 * 进入`release`文件夹
 * 修改`init.properties` 中的配置
 ```
-        #登录账号
-	username=your_username
+#登录账号
+username=your_username
 
-	#登录密码
-	password=your_password
+#登录密码
+password=your_password
 
-	#登录类型，值暂时只能为leetcode或github
-	logintype=leetcode
+#登录类型，值暂时只能为leetcode或github
+logintype=leetcode
 
-	#抓取的代码在本地的存储目录
-        #注意目录路径最后需有一个斜杠/
-	dirpath=/path/to/your/own/directory/
+#抓取的代码在本地的存储目录
+#注意目录路径最后需有一个斜杠/
+dirpath=/path/to/your/own/directory/
 
-	#是否抓取所有的提交代码
-	#为假时参考tags集合的取值有选择的抓取
-	isfetchall=false
+#是否抓取所有的提交代码
+#为假时参考tags集合的取值有选择的抓取
+isfetchall=false
 
-	#抓取与集合中状态匹配的代码
-	tags=Accepted,Wrong Answer,Time Limit Exceeded
+#抓取与集合中状态匹配的代码
+tags=Accepted,Wrong Answer,Time Limit Exceeded
 ```
 * 命令行中运行 `java -jar FetchLeetcodeSubmission.jar` 抓取代码
 * 输出的代码文件，内容依次为
