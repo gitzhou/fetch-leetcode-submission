@@ -80,8 +80,7 @@ public class Leetcode {
 						++totalSubmissions;
 						// 提交记录在服务端ID号
 						String id = tds.get(2).select("a").attr("href");
-						int firstLast = id.length() - 1, secondLast = id.lastIndexOf('/',
-								firstLast - 1);
+						int firstLast = id.length() - 1, secondLast = id.lastIndexOf('/', firstLast - 1);
 						id = id.substring(secondLast + 1, firstLast);
 						// 本次提交状态
 						String status = tds.get(2).select("a").get(0).select("strong").text();
@@ -90,8 +89,7 @@ public class Leetcode {
 							++totalAccepted;
 						}
 						// 筛选抓取的记录
-						if (Config.get("isfetchall").equals("false") && !tags.contains(status)
-								|| ids.contains(id)) {
+						if (Config.get("isfetchall").equals("false") && !tags.contains(status) || ids.contains(id)) {
 							logger.info("跳过 [" + tds.get(0).text() + "] 的提交 >>>> ");
 							continue;
 						}
@@ -100,8 +98,7 @@ public class Leetcode {
 						SubmissionObj so = new SubmissionObj();
 						logger.info("抓取 [" + tds.get(0).text() + "] 的提交 >>>> ");
 						// 题目详细信息
-						QuestionObj qo = buildQuestionObj(HOME_PAGE_URL
-								+ tds.get(1).select("a").attr("href"));
+						QuestionObj qo = buildQuestionObj(HOME_PAGE_URL + tds.get(1).select("a").attr("href"));
 						so.setQuestion(qo);
 						// 代码执行状态
 						so.setStatus(status);
@@ -110,8 +107,7 @@ public class Leetcode {
 						// 代码语言
 						so.setLanguage(tds.get(4).text().toLowerCase());
 						// 代码内容
-						so.setCode(buildCode(HOME_PAGE_URL + tds.get(2).select("a").attr("href"),
-								so.getLanguage()));
+						so.setCode(buildCode(HOME_PAGE_URL + tds.get(2).select("a").attr("href"), so.getLanguage()));
 						// 提交记录在服务端ID号
 						so.setServerID(id);
 						// 持久化到硬盘
@@ -155,8 +151,7 @@ public class Leetcode {
 					for (HeaderElement element : header.getElements()) {
 						if (element.getName() != null && element.getName().equals("csrftoken")) {
 							csrftoken = element.getValue();
-						} else if (element.getName() != null
-								&& element.getName().equals("PHPSESSID")) {
+						} else if (element.getName() != null && element.getName().equals("PHPSESSID")) {
 							phpsessid = element.getValue();
 						}
 					}
@@ -239,8 +234,8 @@ public class Leetcode {
 				// 302 ==> github.com/login/oauth/...
 				headers.put("Referer", LOGIN_VIA_GITHUB_PAGE_URL);
 				String location = response.getFirstHeader("Location").getValue();
-				headers.put("Cookie", "_gh_sess=" + _gh_sess + ";dotcom_user=" + dotcom_user
-						+ ";logged_in=" + logged_in + ";user_session=" + user_session);
+				headers.put("Cookie", "_gh_sess=" + _gh_sess + ";dotcom_user=" + dotcom_user + ";logged_in=" + logged_in
+						+ ";user_session=" + user_session);
 				response = HttpUtils.getWithoutAutoRedirect(location, headers);
 				if (response.getStatusLine().getStatusCode() == 302) {
 					for (Header h : response.getHeaders("Set-Cookie")) {
@@ -271,11 +266,11 @@ public class Leetcode {
 							}
 						}
 						// 302 ==> leetcode.com/problemset/
-						headers.put("Cookie", "csrftoken=" + csrftoken + ";PHPSESSID=" + phpsessid
-								+ ";messages=" + messages);
+						headers.put("Cookie",
+								"csrftoken=" + csrftoken + ";PHPSESSID=" + phpsessid + ";messages=" + messages);
 						headers.put("Referer", location);
 						location = response.getFirstHeader("Location").getValue();
-						response = HttpUtils.getWithoutAutoRedirect(location, headers);
+						response = HttpUtils.getWithoutAutoRedirect(HOME_PAGE_URL + location, headers);
 						if (response.getStatusLine().getStatusCode() == 302) {
 							for (Header h : response.getHeaders("Set-Cookie")) {
 								for (HeaderElement he : h.getElements()) {
@@ -285,11 +280,11 @@ public class Leetcode {
 								}
 							}
 							// 302 ==> leetcode.com/problemset/algorithms/
-							headers.put("Cookie", "csrftoken=" + csrftoken + ";PHPSESSID="
-									+ phpsessid + ";messages=" + messages);
+							headers.put("Cookie",
+									"csrftoken=" + csrftoken + ";PHPSESSID=" + phpsessid + ";messages=" + messages);
 							headers.put("Referer", location);
 							location = response.getFirstHeader("Location").getValue();
-							response = HttpUtils.getWithoutAutoRedirect(location, headers);
+							response = HttpUtils.getWithoutAutoRedirect(HOME_PAGE_URL + location, headers);
 							if (response.getStatusLine().getStatusCode() == 200) {
 								for (Header h : response.getHeaders("Set-Cookie")) {
 									for (HeaderElement he : h.getElements()) {
@@ -353,11 +348,10 @@ public class Leetcode {
 		Elements es = Jsoup.parse(fetchPage(url)).getElementsByTag("script");
 		String code = null;
 		for (Element e : es) {
-			int indexFrom = e.toString().indexOf("storage.put('" + language + "', '");
+			int indexFrom = e.toString().indexOf("submissionCode: '");
 			if (indexFrom > -1) {
-				int indexTo = e.toString().indexOf("storage.put('lang',");
-				code = e.toString().substring(
-						indexFrom + ("storage.put('" + language + "', '").length(), indexTo - 8);
+				int indexTo = e.toString().indexOf("editCodeUrl");
+				code = e.toString().substring(indexFrom + ("submissionCode: '").length(), indexTo - 5);
 			}
 		}
 		return Utils.decode(code);
@@ -368,15 +362,13 @@ public class Leetcode {
 		if (!file.exists() && !file.mkdirs()) {
 			return;
 		}
-		String filePath = Config.get("dirpath") + so.getQuestion().getTitle() + "/"
-				+ so.getStatus().replace(' ', '-');
+		String filePath = Config.get("dirpath") + so.getQuestion().getTitle() + "/" + so.getStatus().replace(' ', '-');
 		if (so.getStatus().equals("Accepted")) {
 			filePath += "-" + so.getRuntime().replaceAll(" ", "");
 		}
 		filePath += "-" + so.getServerID() + so.getCodeExtension();
 		try {
-			OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(filePath, false),
-					"UTF-8");
+			OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(filePath, false), "UTF-8");
 			osw.write(so.getCodeWithComment());
 			osw.close();
 		} catch (IOException e) {
@@ -414,8 +406,8 @@ public class Leetcode {
 	private void syncLocalSubmissionID() {
 		try {
 			logger.info("同步更新本地的提交记录的ID");
-			OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(
-					System.getProperty("user.dir") + "/ids.txt", false), "UTF-8");
+			OutputStreamWriter osw = new OutputStreamWriter(
+					new FileOutputStream(System.getProperty("user.dir") + "/ids.txt", false), "UTF-8");
 			Iterator<String> iter = ids.iterator();
 			while (iter.hasNext()) {
 				osw.write(iter.next() + System.getProperty("line.separator"));
@@ -439,31 +431,30 @@ public class Leetcode {
 			logger.info(String.format("%22s", "Total Accepted:  ") + totalAccepted);
 			if (totalSubmissions != 0) {
 				logger.info(String.format("%22s", "AC Rates:  ")
-						+ new BigDecimal((totalAccepted * 1.0 / totalSubmissions) * 100).setScale(
-								2, RoundingMode.HALF_UP) + "%");
+						+ new BigDecimal((totalAccepted * 1.0 / totalSubmissions) * 100).setScale(2,
+								RoundingMode.HALF_UP)
+						+ "%");
 			}
 			logger.info("=======================================");
 
 			// 写文件
 			logger.info("更新本地的统计信息");
-			OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(
-					Config.get("dirpath") + "statistics.txt", false), "UTF-8");
-			osw.write("============= Statistics =============="
-					+ System.getProperty("line.separator"));
+			OutputStreamWriter osw = new OutputStreamWriter(
+					new FileOutputStream(Config.get("dirpath") + "statistics.txt", false), "UTF-8");
+			osw.write("============= Statistics ==============" + System.getProperty("line.separator"));
 			osw.write(String.format("%22s", "Total Submissions:  ") + totalSubmissions
 					+ System.getProperty("line.separator"));
 			osw.write(String.format("%22s", "Solved Problems:  ") + passedProblems.size()
 					+ System.getProperty("line.separator"));
-			osw.write(String.format("%22s", "Total Accepted:  ") + totalAccepted
-					+ System.getProperty("line.separator"));
+			osw.write(
+					String.format("%22s", "Total Accepted:  ") + totalAccepted + System.getProperty("line.separator"));
 			if (totalSubmissions != 0) {
 				osw.write(String.format("%22s", "AC Rates:  ")
-						+ new BigDecimal((totalAccepted * 1.0 / totalSubmissions) * 100).setScale(
-								2, RoundingMode.HALF_UP) + "%"
-						+ System.getProperty("line.separator"));
+						+ new BigDecimal((totalAccepted * 1.0 / totalSubmissions) * 100).setScale(2,
+								RoundingMode.HALF_UP)
+						+ "%" + System.getProperty("line.separator"));
 			}
-			osw.write("======================================="
-					+ System.getProperty("line.separator"));
+			osw.write("=======================================" + System.getProperty("line.separator"));
 			osw.close();
 		} catch (Exception e) {
 			logger.error("写文件出错" + System.getProperty("line.separator") + e.getMessage());
