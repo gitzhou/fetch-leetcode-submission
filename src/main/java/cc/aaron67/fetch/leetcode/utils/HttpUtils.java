@@ -9,14 +9,12 @@ import java.util.Set;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
-import org.apache.http.client.RedirectStrategy;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
@@ -25,8 +23,6 @@ import org.apache.log4j.Logger;
 public class HttpUtils {
 
 	private final static Logger logger = Logger.getLogger(HttpUtils.class);
-
-	private static CloseableHttpClient client = HttpClients.createDefault();
 
 	/**
 	 * HTTP GET
@@ -41,7 +37,7 @@ public class HttpUtils {
 		}
 		HttpGet get = new HttpGet(url);
 		addHeaders(get, headers);
-		return visit(get);
+		return visit(get, true);
 	}
 
 	/**
@@ -51,24 +47,13 @@ public class HttpUtils {
 	 * @param headers
 	 * @return CloseableHttpResponse
 	 */
-	public static CloseableHttpResponse getWithoutAutoRedirect(String url,
-			Map<String, String> headers) {
+	public static CloseableHttpResponse getWithoutAutoRedirect(String url, Map<String, String> headers) {
 		if (url == null) {
 			return null;
 		}
 		HttpGet get = new HttpGet(url);
 		addHeaders(get, headers);
-		CloseableHttpResponse response = null;
-		try {
-			client = HttpClients.custom().disableRedirectHandling().build();
-			response = visit(get);
-			RedirectStrategy rs = DefaultRedirectStrategy.INSTANCE;
-			client = HttpClients.custom().setRedirectStrategy(rs).build();
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-			e.printStackTrace();
-		}
-		return response;
+		return visit(get, false);
 	}
 
 	/**
@@ -79,14 +64,13 @@ public class HttpUtils {
 	 * @param params
 	 * @return CloseableHttpResponse
 	 */
-	public static CloseableHttpResponse post(String url, Map<String, String> headers,
-			Map<String, String> params) {
+	public static CloseableHttpResponse post(String url, Map<String, String> headers, Map<String, String> params) {
 		if (url == null) {
 			return null;
 		}
 		HttpPost post = preparePostMethod(url, params);
 		addHeaders(post, headers);
-		return visit(post);
+		return visit(post, true);
 	}
 
 	/**
@@ -132,9 +116,15 @@ public class HttpUtils {
 		return post;
 	}
 
-	private static CloseableHttpResponse visit(HttpUriRequest request) {
+	private static CloseableHttpResponse visit(HttpUriRequest request, boolean autoRedirect) {
 		CloseableHttpResponse response = null;
 		try {
+			CloseableHttpClient client = null;
+			if (autoRedirect) {
+				client = HttpClients.createDefault();
+			} else {
+				client = HttpClients.custom().disableRedirectHandling().build();
+			}
 			response = client.execute(request);
 		} catch (Exception e) {
 			logger.error(e.getMessage());

@@ -69,7 +69,7 @@ public class Leetcode {
 						++pageIndex;
 					}
 					Elements submissions = Jsoup.parse(fetchPage(location)) // 提交页面
-							.select("table[id=result_testcases]") // 提交记录表格
+							.select("table[id=result-testcases]") // 提交记录表格
 							.select("tbody") // 去掉表头
 							.select("tr"); // 表格数据的每一行
 					if (submissions.size() == 0) {
