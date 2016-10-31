@@ -339,7 +339,7 @@ public class Leetcode {
 		QuestionObj qo = new QuestionObj();
 		qo.setUrl(url);
 		Document doc = Jsoup.parse(fetchPage(url));
-		qo.setTitle(doc.select("div[class=question-title]").select("h3").text());
+		qo.setTitle(doc.select("div[class=question-title clearfix]").select("h3").text());
 		qo.setContent(doc.select("div[class=question-content]").text());
 		return qo;
 	}
