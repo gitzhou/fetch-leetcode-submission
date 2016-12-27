@@ -40,7 +40,7 @@ public class Leetcode {
 	private static Logger logger = Logger.getLogger(Leetcode.class);
 
 	private String csrftoken = "DLs592YH48QUgXUWpa6aoS5nbgGXhl8z";
-	private String phpsessid = "i8hgu33c6cquwgxhmle7ic88wvha1ii6";
+	private String leetcodeSessionID = "";
 
 	private Set<String> tags = null;
 	// 已抓取到本地的提交记录的ID
@@ -151,8 +151,8 @@ public class Leetcode {
 					for (HeaderElement element : header.getElements()) {
 						if (element.getName() != null && element.getName().equals("csrftoken")) {
 							csrftoken = element.getValue();
-						} else if (element.getName() != null && element.getName().equals("PHPSESSID")) {
-							phpsessid = element.getValue();
+						} else if (element.getName() != null && element.getName().equals("LEETCODE_SESSION")) {
+							leetcodeSessionID = element.getValue();
 						}
 					}
 				}
@@ -221,13 +221,13 @@ public class Leetcode {
 			// **** 登录LeetCode ****
 			// GET ==> LOGIN_VIA_GITHUB_PAGE_URL
 			headers.put("Referer", HOME_PAGE_URL);
-			headers.put("Cookie", "csrftoken=" + csrftoken + ";PHPSESSID=" + phpsessid);
+			headers.put("Cookie", "csrftoken=" + csrftoken + ";LEETCODE_SESSION=" + leetcodeSessionID);
 			response = HttpUtils.getWithoutAutoRedirect(LOGIN_VIA_GITHUB_PAGE_URL, headers);
 			if (response.getStatusLine().getStatusCode() == 302) {
 				for (Header h : response.getHeaders("Set-Cookie")) {
 					for (HeaderElement he : h.getElements()) {
-						if (he != null && he.getName().equals("PHPSESSID")) {
-							phpsessid = he.getValue();
+						if (he != null && he.getName().equals("LEETCODE_SESSION")) {
+							leetcodeSessionID = he.getValue();
 						}
 					}
 				}
@@ -249,7 +249,7 @@ public class Leetcode {
 					}
 					// 302 ==> leetcode.com/accounts/github/login/callback/..
 					headers.put("Referer", location);
-					headers.put("Cookie", "csrftoken=" + csrftoken + ";PHPSESSID=" + phpsessid);
+					headers.put("Cookie", "csrftoken=" + csrftoken + ";LEETCODE_SESSION=" + leetcodeSessionID);
 					location = response.getFirstHeader("Location").getValue();
 					String messages = "";
 					response = HttpUtils.getWithoutAutoRedirect(location, headers);
@@ -258,8 +258,8 @@ public class Leetcode {
 							for (HeaderElement he : h.getElements()) {
 								if (he != null && he.getName().equals("csrftoken")) {
 									csrftoken = he.getValue();
-								} else if (he != null && he.getName().equals("PHPSESSID")) {
-									phpsessid = he.getValue();
+								} else if (he != null && he.getName().equals("LEETCODE_SESSION")) {
+									leetcodeSessionID = he.getValue();
 								} else if (he != null && he.getName().equals("messages")) {
 									messages = he.getValue();
 								}
@@ -267,7 +267,7 @@ public class Leetcode {
 						}
 						// 302 ==> leetcode.com/problemset/
 						headers.put("Cookie",
-								"csrftoken=" + csrftoken + ";PHPSESSID=" + phpsessid + ";messages=" + messages);
+								"csrftoken=" + csrftoken + ";LEETCODE_SESSION=" + leetcodeSessionID + ";messages=" + messages);
 						headers.put("Referer", location);
 						location = response.getFirstHeader("Location").getValue();
 						response = HttpUtils.getWithoutAutoRedirect(HOME_PAGE_URL + location, headers);
@@ -281,7 +281,7 @@ public class Leetcode {
 							}
 							// 302 ==> leetcode.com/problemset/algorithms/
 							headers.put("Cookie",
-									"csrftoken=" + csrftoken + ";PHPSESSID=" + phpsessid + ";messages=" + messages);
+									"csrftoken=" + csrftoken + ";LEETCODE_SESSION=" + leetcodeSessionID + ";messages=" + messages);
 							headers.put("Referer", location);
 							location = response.getFirstHeader("Location").getValue();
 							response = HttpUtils.getWithoutAutoRedirect(HOME_PAGE_URL + location, headers);
@@ -321,7 +321,7 @@ public class Leetcode {
 	private String fetchPage(String url) {
 		Map<String, String> headers = new HashMap<String, String>();
 		headers.put("Referer", SUBMISSION_PAGE_URL);
-		headers.put("Cookie", "csrftoken=" + csrftoken + ";PHPSESSID=" + phpsessid);
+		headers.put("Cookie", "csrftoken=" + csrftoken + ";LEETCODE_SESSION=" + leetcodeSessionID);
 		CloseableHttpResponse response = HttpUtils.getWithoutAutoRedirect(url, headers);
 		try {
 			return HttpUtils.fetchWebpage(response);
