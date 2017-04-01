@@ -265,37 +265,15 @@ public class Leetcode {
 								}
 							}
 						}
-						// 302 ==> leetcode.com/problemset/
+						// 302 ==> leetcode.com/
 						headers.put("Cookie",
 								"csrftoken=" + csrftoken + ";LEETCODE_SESSION=" + leetcodeSessionID + ";messages=" + messages);
 						headers.put("Referer", location);
 						location = response.getFirstHeader("Location").getValue();
 						response = HttpUtils.getWithoutAutoRedirect(HOME_PAGE_URL + location, headers);
-						if (response.getStatusLine().getStatusCode() == 302) {
-							for (Header h : response.getHeaders("Set-Cookie")) {
-								for (HeaderElement he : h.getElements()) {
-									if (he != null && he.getName().equals("messages")) {
-										messages = he.getValue();
-									}
-								}
-							}
-							// 302 ==> leetcode.com/problemset/algorithms/
-							headers.put("Cookie",
-									"csrftoken=" + csrftoken + ";LEETCODE_SESSION=" + leetcodeSessionID + ";messages=" + messages);
-							headers.put("Referer", location);
-							location = response.getFirstHeader("Location").getValue();
-							response = HttpUtils.getWithoutAutoRedirect(HOME_PAGE_URL + location, headers);
-							if (response.getStatusLine().getStatusCode() == 200) {
-								for (Header h : response.getHeaders("Set-Cookie")) {
-									for (HeaderElement he : h.getElements()) {
-										if (he != null && he.getName().equals("messages")) {
-											messages = he.getValue();
-										}
-									}
-								}
-								logger.info("登录成功");
-								return true;
-							}
+						if (response.getStatusLine().getStatusCode() == 200) {
+						    logger.info("登录成功");
+                            return true;
 						}
 					}
 				}
