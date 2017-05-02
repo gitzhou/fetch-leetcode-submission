@@ -2,6 +2,13 @@
 * Gradle 构建项目
 * HttpClient、jsoup 抓取、解析网页
 
+## 停止维护（2017-05-02）
+LeetCode调整了前端实现，在返回的HTML中隐藏了真实内容
+
+现在已经无法通过解析取回的HTML来获得本项目需要的数据
+
+本项目不再维护
+
 ## 使用说明
 * 进入`release`文件夹
 * 修改`init.properties` 中的配置
