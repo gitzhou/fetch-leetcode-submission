@@ -2,13 +2,14 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-	compile 'org.apache.httpcomponents:httpclient:4.3.5'
-	compile 'org.jsoup:jsoup:1.7.3'
-	compile 'log4j:log4j:1.2.17'
+    compile 'org.apache.httpcomponents:httpclient:4.3.5'
+    compile 'org.jsoup:jsoup:1.7.3'
+    compile 'log4j:log4j:1.2.17'
+    compile group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
 }
 
 jar {
@@ -19,17 +20,18 @@ jar {
 }
 
 tasks.withType(JavaCompile) {
-	options.encoding = "UTF-8"
+    options.encoding = "UTF-8"
 }
 
 task release(type: Copy) {
-	from 'build/libs'
-	into 'release'
+    from 'build/libs'
+    into 'release'
 }
 
 task copyConfig(type: Copy) {
-	from 'init.properties'
-	into 'release'
+    from 'init.properties'
+    into 'release'
 }
 
 release.dependsOn 'build', 'copyConfig'
+

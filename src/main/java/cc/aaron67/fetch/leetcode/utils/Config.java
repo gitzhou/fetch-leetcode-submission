@@ -9,26 +9,23 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 public class Config {
-	private static Logger logger = Logger.getLogger(Config.class);
+    private static Logger logger = Logger.getLogger(Config.class);
 
-	private static Properties properties = new Properties();
+    private static Properties properties = new Properties();
 
-	static {
-		try {
-			logger.info("读取配置文件");
-			String configFilePath = System.getProperty("user.dir")
-					+ "/init.properties";
-			PropertyConfigurator.configure(configFilePath);
-			properties.load(new BufferedInputStream(new FileInputStream(
-					configFilePath)));
-		} catch (IOException e) {
-			logger.error("读配置文件出错" + System.getProperty("line.separator")
-					+ e.getMessage());
-			e.printStackTrace();
-		}
-	}
+    static {
+        try {
+            logger.info("读取配置文件");
+            String configFilePath = System.getProperty("user.dir") + "/init.properties";
+            PropertyConfigurator.configure(configFilePath);
+            properties.load(new BufferedInputStream(new FileInputStream(configFilePath)));
+        } catch (IOException e) {
+            logger.error("读配置文件出错" + System.getProperty("line.separator") + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
-	public static String get(String key) {
-		return properties.getProperty(key);
-	}
+    public static String get(String key) {
+        return properties.getProperty(key);
+    }
 }
