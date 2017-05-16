@@ -51,13 +51,13 @@ jar {
 }
 
 task release(type: Copy) {
-	from 'build/libs'
-	into 'release'
+    from 'build/libs'
+    into 'release'
 }
 
 task copyConfig(type: Copy) {
-	from 'init.properties'
-	into 'release'
+    from 'init.properties'
+    into 'release'
 }
 
 release.dependsOn 'build', 'copyConfig'
