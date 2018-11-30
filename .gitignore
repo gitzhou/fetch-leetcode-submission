@@ -13,3 +13,11 @@ ids.txt
 
 # Mac crap #
 .DS_Store
+
+# IDEA Workspace
+/**/.idea/
+/**/*.iml
+/**/*.ipr
+/**/*.iws
+/**/out/
+
