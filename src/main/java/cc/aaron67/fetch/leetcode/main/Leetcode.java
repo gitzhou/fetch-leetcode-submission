@@ -67,7 +67,9 @@ public class Leetcode {
                 boolean hasNext = true;
                 while (hasNext) {
                     String api = String.format(HOME_PAGE_URL + SUBMISSIONS_API_FORMAT, offset, limit);
-                    JSONObject response = (JSONObject) parser.parse(fetchPage(api));
+                    String jsonRaw = fetchPage(api);
+                    logger.info(jsonRaw);
+                    JSONObject response = (JSONObject) parser.parse(jsonRaw);
                     hasNext = (boolean) response.get("has_next");
                     JSONArray submissions = (JSONArray) response.get("submissions_dump");
                     for (Object obj : submissions) { // 对每一次的提交
@@ -108,6 +110,9 @@ public class Leetcode {
                         writeSubmissionToDisk(so);
                     } // for
                     offset += limit;
+
+                    // 好像接口访问太快会导致一个神奇的空指针异常
+                    Thread.sleep(1000);
                 } // while
             } catch (Exception e) {
                 logger.error(e.getMessage());
@@ -121,12 +126,12 @@ public class Leetcode {
 
     private boolean login() {
         switch (Config.get("logintype")) {
-        case "leetcode":
-            return loginLeetcode();
-        case "github":
-            return loginViaGithub();
-        default:
-            return false;
+            case "leetcode":
+                return loginLeetcode();
+            case "github":
+                return loginViaGithub();
+            default:
+                return false;
         }
     }
 
@@ -168,7 +173,7 @@ public class Leetcode {
 
     /**
      * 通过GitHub登录
-     * 
+     *
      * @return
      */
     private boolean loginViaGithub() {
@@ -398,8 +403,7 @@ public class Leetcode {
             logger.info(String.format("%22s", "Total Accepted:  ") + totalAccepted);
             if (totalSubmissions != 0) {
                 logger.info(String.format("%22s", "AC Rates:  ")
-                        + new BigDecimal((totalAccepted * 1.0 / totalSubmissions) * 100).setScale(2,
-                                RoundingMode.HALF_UP)
+                        + new BigDecimal((totalAccepted * 1.0 / totalSubmissions) * 100).setScale(2, RoundingMode.HALF_UP)
                         + "%");
             }
             logger.info("=======================================");
@@ -417,8 +421,7 @@ public class Leetcode {
                     String.format("%22s", "Total Accepted:  ") + totalAccepted + System.getProperty("line.separator"));
             if (totalSubmissions != 0) {
                 osw.write(String.format("%22s", "AC Rates:  ")
-                        + new BigDecimal((totalAccepted * 1.0 / totalSubmissions) * 100).setScale(2,
-                                RoundingMode.HALF_UP)
+                        + new BigDecimal((totalAccepted * 1.0 / totalSubmissions) * 100).setScale(2, RoundingMode.HALF_UP)
                         + "%" + System.getProperty("line.separator"));
             }
             osw.write("=======================================" + System.getProperty("line.separator"));
